@@ -1,48 +1,54 @@
+import azureml.core
 from azureml.core import Environment, Experiment
 from azureml.core.conda_dependencies import CondaDependencies
 from azureml.train.estimator import Estimator
-from azureml.widgets import RunDetails
+from azureml.core import Model
+from azureml.core import Workspace, Datastore, Dataset
+from azureml.core.compute import ComputeTarget, AmlCompute
+from azureml.core.compute_target import ComputeTargetException
 
-# Create a Python environment for the experiment
-diabetes_env = Environment("diabetes-experiment-env")
-diabetes_env.python.user_managed_dependencies = False # Let Azure ML manage dependencies
-diabetes_env.docker.enabled = True # Use a docker container
 
-# Create a set of package dependencies
-diabetes_packages = CondaDependencies.create(conda_packages=['scikit-learn','ipykernel','matplotlib', 'pandas'],
-                                             pip_packages=['azureml-sdk','pyarrow'])
+# Load the workspace from the saved config file
+ws = Workspace.from_config()
+print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws.name))
 
-# Add the dependencies to the environment
-diabetes_env.python.conda_dependencies = diabetes_packages
+cluster_name = "aml-cluster"
+# Verify that cluster exists
+try:
+    training_cluster = ComputeTarget(workspace=ws, name=cluster_name)
+    print('Found existing cluster, use it.')
+except ComputeTargetException:
+    # If not, create it
+    compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_DS12_V2', max_nodes=4)
+    training_cluster = ComputeTarget.create(ws, cluster_name, compute_config)
 
-# Register the environment (just in case previous lab wasn't completed)
-diabetes_env.register(workspace=ws)
-registered_env = Environment.get(ws, 'diabetes-experiment-env')
+training_cluster.wait_for_completion(show_output=True)
+
+# Get python environment
+registered_env = Environment.get(ws, 'trading-xgboost-ta-3.6-env')
 
 # Get the training dataset
-diabetes_ds = ws.datasets.get("diabetes dataset")
+data = ws.datasets.get("bitcoin 1H tabular dataset")
 
 # Create an estimator
-estimator = Estimator(source_directory=experiment_folder,
-              inputs=[diabetes_ds.as_named_input('diabetes')],
+estimator = Estimator(source_directory="trading_src",
+              inputs=[data.as_named_input('bitcoin')],
               compute_target = cluster_name, # Use the compute target created previously
               environment_definition = registered_env,
-              entry_script='diabetes_training.py')
+              entry_script='aml_experiments/xgboost_B_S_H/xgboost_B_S_H_script.py')
 
 # Create an experiment
-experiment = Experiment(workspace = ws, name = 'diabetes-training')
+experiment = Experiment(workspace = ws, name = 'xgboost-training-test')
 
 # Run the experiment
 run = experiment.submit(config=estimator)
-# Show the run details while running
-RunDetails(run).show()
 
-
-from azureml.core import Model
+run.wait_for_completion()
 
 # Register the model
-run.register_model(model_path='outputs/diabetes_model.pkl', model_name='diabetes_model',
-                   tags={'Training context':'Azure ML compute'}, properties={'AUC': run.get_metrics()['AUC'], 'Accuracy': run.get_metrics()['Accuracy']})
+run.register_model(model_path='outputs/xgboost_model_test.pkl', model_name='xgboost_model_test',
+                   tags={'Training context':'Azure ML compute'}, properties={'Classification_result': run.get_metrics()['Classification_result'], 
+                                                                             'Confusion_matrix': run.get_metrics()['Confusion_matrix']})
 
 # List registered models
 for model in Model.list(ws):

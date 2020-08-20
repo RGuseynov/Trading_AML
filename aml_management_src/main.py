@@ -25,23 +25,33 @@ print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws
 blob_datastore = Datastore.get(ws, 'financial_timeseries_ohlc')
 
 
-#Create a file dataset from the path on the datastore (this may take a short while)
-file_data_set = Dataset.File.from_files(path=(blob_datastore, 'bitcoin_clean_ohlcv/1H/*.csv'))
+##Create a file dataset from the path on the datastore (this may take a short while)
+#file_data_set = Dataset.File.from_files(path=(blob_datastore, 'bitcoin_clean_ohlcv/1H/*.csv'))
 
-# Get the files in the dataset
-for file_path in file_data_set.to_path():
-    print(file_path)
+## Get the files in the dataset
+#for file_path in file_data_set.to_path():
+#    print(file_path)
 
-# Register the file dataset
-file_data_set = file_data_set.register(workspace=ws, 
-                           name='bitcoin 1H file dataset',
-                           description='bitcoin 1H files',
+## Register the file dataset
+#file_data_set = file_data_set.register(workspace=ws, 
+#                           name='bitcoin 1H file dataset',
+#                           description='bitcoin 1H files',
+#                           tags = {'format':'CSV'},
+#                           create_new_version=True)
+
+#print('Datasets registered')
+
+
+
+tabular_data_set = Dataset.Tabular.from_delimited_files(path=(blob_datastore, 'bitcoin_clean_ohlcv/1H/*.csv'))
+
+tabular_data_set = tabular_data_set.register(workspace=ws, 
+                           name='bitcoin 1H tabular dataset',
+                           description='bitcoin 1H tabular',
                            tags = {'format':'CSV'},
                            create_new_version=True)
 
 print('Datasets registered')
-
-
 
 
 ## Get specific datastore

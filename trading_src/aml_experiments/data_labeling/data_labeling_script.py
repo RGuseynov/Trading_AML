@@ -16,10 +16,14 @@ run = Run.get_context()
 
 print("loading data")
 
-# load the diabetes dataset
-#data = pd.read_csv('diabetes.csv')
-#download_location = run.input_datasets['input_1']
+# get the experiment and workspace from within the script run context
+#exp = run.experiment
+#ws = exp.workspace
+# get the dataset directly
+#dataset = Dataset.get_by_name(ws, name='bitcoin 1H file dataset')
+#download_location = dataset.as_download()
 
+# or get the dataset from input from entry_script
 download_location = sys.argv[1]
 
 print(download_location)

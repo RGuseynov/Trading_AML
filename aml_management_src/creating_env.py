@@ -10,10 +10,13 @@ ws = Workspace.from_config()
 print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws.name))
 
 
-whl_url = Environment.add_private_pip_wheel(workspace=ws,file_path = "TA_Lib-0.4.18-cp38-cp38-win_amd64.whl")
-myenv = Environment(name="trading-xgboost-env")
+#whl_url = Environment.add_private_pip_wheel(workspace=ws, file_path="TA_Lib-0.4.18-cp38-cp38-win_amd64.whl", exist_ok= True)
+whl_url = "https://tradingws4129079722.blob.core.windows.net/azureml/Environment/azureml-private-packages/TA_Lib-0.4.10-cp36-cp36m-manylinux1_x86_64.whl"
+print("done")
+print(whl_url)
+myenv = Environment(name="trading-xgboost-ta-3.6-env")
 pip_packages=['azureml-sdk','pandas','xgboost','scikit-learn','matplotlib','seaborn','Backtesting',]
-conda_dep = CondaDependencies.create(pip_packages=pip_packages, python_version="3.8")
+conda_dep = CondaDependencies.create(pip_packages=pip_packages, python_version="3.6")
 conda_dep.add_pip_package(whl_url)
 myenv.python.conda_dependencies=conda_dep
 
@@ -25,8 +28,9 @@ myenv.register(workspace=ws)
 
 envs = Environment.list(workspace=ws)
 for env in envs:
-    print("Name",env)
-    print("packages", envs[env].python.conda_dependencies.serialize_to_string())
+    if not env.startswith("AzureML"):
+        print("Name",env)
+        print("packages", envs[env].python.conda_dependencies.serialize_to_string())
 #if env.startswith("AzureML"):
 
 ## Create a Python environment for the experiment
