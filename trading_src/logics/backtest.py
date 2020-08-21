@@ -39,7 +39,7 @@ class BinaryPrediction(Strategy):
             self.position.close()
 
 
-class CNN_B_S_H(Strategy):
+class B_S_H(Strategy):
     prediction = None
     thresold = None
 

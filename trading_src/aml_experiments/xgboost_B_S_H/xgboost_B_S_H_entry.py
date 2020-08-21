@@ -47,8 +47,8 @@ run.wait_for_completion()
 
 # Register the model
 run.register_model(model_path='outputs/xgboost_model_test.pkl', model_name='xgboost_model_test',
-                   tags={'Training context':'Azure ML compute'}, properties={'Classification_result': run.get_metrics()['Classification_result'], 
-                                                                             'Confusion_matrix': run.get_metrics()['Confusion_matrix']})
+                   tags={'Training context':'Azure ML compute'}, properties={'return no fee': run.get_metrics()['return no fee'], 
+                                                                             'return with fee': run.get_metrics()['return with fee']})
 
 # List registered models
 for model in Model.list(ws):

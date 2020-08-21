@@ -31,7 +31,6 @@ for env in envs:
     if not env.startswith("AzureML"):
         print("Name",env)
         print("packages", envs[env].python.conda_dependencies.serialize_to_string())
-#if env.startswith("AzureML"):
 
 ## Create a Python environment for the experiment
 #xgboost_env = Environment("trading-xgboost-env")
