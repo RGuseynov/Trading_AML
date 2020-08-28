@@ -4,6 +4,14 @@ from sklearn.utils.class_weight import compute_class_weight
 
 
 def reshape_as_image(x, img_width, img_height):
+    """
+    params:
+    x: list of array(x = [[],[],...])
+    img_width: width to set each element of x
+    img_height: height to set each element of x
+    
+    size of each element of x must be multiplicatif of img_width * img_height
+    """
     x_temp = np.zeros((len(x), img_height, img_width, 1))
     for i in range(x.shape[0]):
         x_temp[i] = np.reshape(x[i], (img_height, img_width, 1))

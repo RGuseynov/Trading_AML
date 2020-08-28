@@ -3,7 +3,9 @@ import pandas as pd
 
 # control l'affichage des resultats de pandas
 pd.set_option('display.max_rows', 50)
+pd.set_option('display.min_rows', 20)
 pd.set_option('display.max_columns',10)
+pd.set_option('display.min_columns', 10)
 pd.set_option('display.width', 150)
 
 # format d'affichage

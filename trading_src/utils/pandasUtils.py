@@ -9,7 +9,7 @@ def compute_times_gaps(df:pd.DataFrame, new_column_name:string = "Time_gaps") ->
     df = df.dropna()
 
     times_gaps = df.iloc[1:].index - df.iloc[:-1].index
-    df.loc[:-1, new_column_name] = times_gaps
+    df.loc[1:, new_column_name] = times_gaps
     return df
 
 

@@ -14,6 +14,7 @@ from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classifi
 import matplotlib.pyplot as plt
 
 sys.path.append("trading_src")
+import utils.utils as utils
 import helpers.save_plotsHelper as ph
 import helpers.ml_models_managementHelper as mm
 import helpers.load_dataHelper as dh
@@ -66,8 +67,11 @@ ml_experiment["features_informations"]["features"] = list(X_train.columns)
 ml_experiment["features_informations"]["target"] = "predict if local min(BUY:1), max(SELL:0) or not(HOLD:2)"
 ml_experiment["features_informations"]["target_window_size"] = window_size
 
+# handling data inbalance with weighted class
+sample_weights, ml_experiment["class_weights"] = utils.get_sample_weights(y_train)
+
 # prepare data for XGBoost training and testing
-dtrain = xgb.DMatrix(X_train, label=y_train, feature_names=list(X_train.columns))
+dtrain = xgb.DMatrix(X_train, weight=sample_weights, label=y_train, feature_names=list(X_train.columns))
 dtest = xgb.DMatrix(X_test, label=y_test, feature_names=list(X_train.columns))
 
 # model training
@@ -97,10 +101,10 @@ run.log_image("features importances", plot=plot_helper.get_features_importances(
 
 # running backtest
 bk_output_1 = bk.do_back_test(X_test, bk.B_S_H, ml_experiment["backtest_parameters_1"]["thresold"], 
-                                ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "test_sans_frais")
+                                ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "outputs/bk_plot_sans_frais")
 ml_experiment["backtest_results_1"] = bk_output_1.to_dict()
 bk_output_2 = bk.do_back_test(X_test, bk.B_S_H, ml_experiment["backtest_parameters_2"]["thresold"], 
-                                ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "test")
+                                ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "outputs/bk_plot_avec_frais")
 ml_experiment["backtest_results_2"] = bk_output_2.to_dict()
 
 run.log("return no fee", ml_experiment["backtest_results_1"]["Return [%]"])
@@ -114,7 +118,6 @@ with open("outputs/training_info.json", "w") as file:
     json.dump(ml_experiment, file, indent=4, default=str)
 
 run.complete()
-
 
 
 ## Separate features and labels

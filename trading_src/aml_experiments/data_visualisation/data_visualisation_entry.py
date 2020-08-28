@@ -24,6 +24,14 @@ bitcoin_env.python.user_managed_dependencies = True # for local env
 experiment_run_config = RunConfiguration()
 experiment_run_config.environment = bitcoin_env
 
+# use local env
+## Editing a run configuration property on-fly.
+#run_config_user_managed = RunConfiguration()
+#run_config_user_managed.environment.python.user_managed_dependencies = True
+## You can choose a specific Python environment by pointing to a Python path 
+##run_config.environment.python.interpreter_path = '/home/johndoe/miniconda3/envs/sdk2/bin/python'
+
+
 # Create a script config
 src = ScriptRunConfig(source_directory="trading_src", 
                       script='aml_experiments/data_visualisation/data_visualisation_script.py',

@@ -56,31 +56,25 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
     'volume': df["Volume_(BTC)"]
     }
 
-    
-
-
-    overlap_studies = talib.get_function_groups()['Overlap Studies']
-    if "MAVP" in overlap_studies:
-        overlap_studies.remove("MAVP")
-    df = process_ta_functions_group(df, inputs, overlap_studies)
-    df = process_ta_functions_group(df, inputs, talib.get_function_groups()['Momentum Indicators'])
-    df = process_ta_functions_group(df, inputs, talib.get_function_groups()['Cycle Indicators'])
-
-    for func in talib.get_function_groups()['Volume Indicators']:
-        df[func] = globals()[func](inputs)
-
-    for func in talib.get_function_groups()['Volatility Indicators']:
-        df[func] = globals()[func](inputs)
-
-    for func in talib.get_function_groups()['Pattern Recognition']:
-        df[func] = globals()[func](inputs)
+    df["BBANDS_upper"], df["BBANDS_middle"], df["BBANDS_lower"] = BBANDS(inputs, 20, 2.0, 2.0)
 
     return df
 
 
+def add_my_TA (df: pd.DataFrame) -> pd.DataFrame:
+    inputs = {
+    'open': df["Open"],
+    'high': df["High"],
+    'low': df["Low"],
+    'close': df["Close"],
+    'volume': df["Volume_(BTC)"]
+    }
 
+    df["BBANDS_middle"] = df["Close"].rolling(window=20).mean()
+    df["BBANDS_upper"] = df["BBANDS_middle"] + 2 * df["Close"].rolling(window=20).std(0)
+    df["BBANDS_lower"] = df["BBANDS_middle"] - 2 * df["Close"].rolling(window=20).std(0)
 
-
+    return df
 
 
 def add_partial_TA (df: pd.DataFrame) -> pd.DataFrame:
