@@ -139,3 +139,4 @@ dmypy.json
 /TA_Lib-0.4.10-cp36-cp36m-manylinux1_x86_64.whl
 /artefacts
 /.vscode
+/trading_src/ta-lib-0.4.0-src.tar.gz

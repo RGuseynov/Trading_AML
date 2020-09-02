@@ -25,7 +25,7 @@ except ComputeTargetException:
 training_cluster.wait_for_completion(show_output=True)
 
 # Get python environment
-registered_env = Environment.get(ws, 'talib-binary-test-3.6-env')
+registered_env = Environment.get(ws, 'xgboost-env')
 
 # Get the training dataset
 data = ws.datasets.get("bitcoin 1H tabular dataset")
@@ -35,10 +35,10 @@ estimator = Estimator(source_directory="trading_src",
               inputs=[data.as_named_input('bitcoin')],
               compute_target = cluster_name, # Use the compute target created previously
               environment_definition = registered_env,
-              entry_script='aml_experiments/xgboost_B_S_H/xgboost_B_S_H_script.py')
+              entry_script='aml_experiments/boolingerB/boolingerB_script.py')
 
 # Create an experiment
-experiment = Experiment(workspace = ws, name = 'xgboost-training-test')
+experiment = Experiment(workspace = ws, name = 'BoolingerB-training')
 #experiment = Experiment(workspace = ws, name = 'test-TALIB-env')
 
 # Run the experiment
@@ -47,17 +47,8 @@ run = experiment.submit(config=estimator)
 run.wait_for_completion()
 
 # Register the model
-run.register_model(model_path='outputs/xgboost_model_test.pkl', model_name='xgboost_model_test',
+run.register_model(model_path='outputs/BoolingerB_model.pkl', model_name='BoolingerB_model',
                    tags={'Training context':'Azure ML compute'}, properties={'return no fee': run.get_metrics()['return no fee'], 
                                                                              'return with fee': run.get_metrics()['return with fee']})
 
-# List registered models
-for model in Model.list(ws):
-    print(model.name, 'version:', model.version)
-    for tag_name in model.tags:
-        tag = model.tags[tag_name]
-        print ('\t',tag_name, ':', tag)
-    for prop_name in model.properties:
-        prop = model.properties[prop_name]
-        print ('\t',prop_name, ':', prop)
-    print('\n')
+

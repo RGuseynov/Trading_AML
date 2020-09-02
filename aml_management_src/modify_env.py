@@ -10,7 +10,7 @@ ws = Workspace.from_config()
 print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws.name))
 
 
-myenv = Environment.get(ws, "trading-xgboost-ta-3.6-env")
+myenv = Environment.get(ws, "test-TALIB-env-3.6-env")
 conda_dep = myenv.python.conda_dependencies
 conda_dep.add_pip_package("graphviz")
 myenv.python.conda_dependencies = conda_dep

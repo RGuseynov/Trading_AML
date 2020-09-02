@@ -47,36 +47,6 @@ def add_TA (df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
-    inputs = {
-    'open': df["Open"],
-    'high': df["High"],
-    'low': df["Low"],
-    'close': df["Close"],
-    'volume': df["Volume_(BTC)"]
-    }
-
-    df["BBANDS_upper"], df["BBANDS_middle"], df["BBANDS_lower"] = BBANDS(inputs, 20, 2.0, 2.0)
-
-    return df
-
-
-def add_my_TA (df: pd.DataFrame) -> pd.DataFrame:
-    inputs = {
-    'open': df["Open"],
-    'high': df["High"],
-    'low': df["Low"],
-    'close': df["Close"],
-    'volume': df["Volume_(BTC)"]
-    }
-
-    df["BBANDS_middle"] = df["Close"].rolling(window=20).mean()
-    df["BBANDS_upper"] = df["BBANDS_middle"] + 2 * df["Close"].rolling(window=20).std(0)
-    df["BBANDS_lower"] = df["BBANDS_middle"] - 2 * df["Close"].rolling(window=20).std(0)
-
-    return df
-
-
 def add_partial_TA (df: pd.DataFrame) -> pd.DataFrame:
     inputs = {
     'open': df["Open"],
@@ -105,9 +75,55 @@ def add_partial_TA (df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def add_test_TA (df: pd.DataFrame) -> pd.DataFrame:
+    inputs = {
+    'open': df["Open"],
+    'high': df["High"],
+    'low': df["Low"],
+    'close': df["Close"],
+    'volume': df["Volume_(BTC)"]
+    }
+
+    #df["BBANDS_upper"], df["BBANDS_middle"], df["BBANDS_lower"] = BBANDS(inputs, 20, 2.0, 2.0)
+
+    df["KAMA"] = KAMA(inputs, timeperiod=30)
+    df["MESA"] = MESA(inputs)
+
+    return df
 
 
 
+def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
+    inputs = {
+    'open': df["Open"],
+    'high': df["High"],
+    'low': df["Low"],
+    'close': df["Close"],
+    'volume': df["Volume_(BTC)"]
+    }
+
+    for i in range(5, 30):
+        #df["BBANDS_UP"+str(i)], df["BBANDS_MID"+str(i)], df["BBANDS_LOW"+str(i)] = BBANDS(inputs, timeperiod=i, nbdevup=2.0, nbdevdn=2.0)
+        #df["BBANDS_UP"+str(i)] = df["BBANDS_UP"+str(i)] / df["Close"]
+        #df["BBANDS_LOW"+str(i)] = df["BBANDS_LOW"+str(i)] / df["Close"]
+
+        upper_band, medium_band, lower_band = BBANDS(inputs, timeperiod=i, nbdevup=2.0, nbdevdn=2.0)
+        df["BBANDS_WIDTH_"+str(i)] = (upper_band - lower_band) / medium_band
+        
+        for j in range(1,30):
+            df["BBANDS_WIDTH_"+str(i)+"_"+str(j)] = df["BBANDS_WIDTH_"+str(i)].shift(j) / df["BBANDS_WIDTH_"+str(i)]
+
+        #Moving Average
+        MA = df["Close"].rolling(window=i).mean()
+        #Moving Standard Deviation
+        MSD = df["Close"].rolling(window=i).std()
+        df["BBANDS_%B_" + str(i)] = (df['Close'] - MA + 2 * MSD) / (2 * 2 * MSD)
+
+        for j in range(1,30):
+            df["BBANDS_%B_"+str(i)+"_"+str(j)] = df["BBANDS_%B_"+str(i)] - df["BBANDS_%B_"+str(i)].shift(j)
+
+
+    return df
 
 
 
