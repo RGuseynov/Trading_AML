@@ -35,7 +35,11 @@ def get_sample_weights(y):
     print("value_counts", np.unique(y, return_counts=True))
     sample_weights = y.copy().astype(float)
     for i in np.unique(y):
-        sample_weights[sample_weights == i] = class_weights[i]  # if i == 2 else 0.8 * class_weights[i]
+        if i == 2:
+            sample_weights[sample_weights == i] = class_weights[i]
+        else: 
+            class_weights[i] = class_weights[i] * 0.8
+            sample_weights[sample_weights == i] = class_weights[i]
         # sample_weights = np.where(sample_weights == i, class_weights[int(i)], y_)
 
     return (sample_weights, class_weights)

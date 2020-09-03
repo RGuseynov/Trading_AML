@@ -14,8 +14,9 @@ def add_B_S_H(row):
 def create_labels(df, window_size=11):
     df["temp_max"] = df["Close"].rolling(window_size, center=True).max()
     df["temp_min"] = df["Close"].rolling(window_size, center=True).min()
-    y = df[["Close", "temp_max", "temp_min"]].apply(add_B_S_H, axis=1)
-    df.drop(['temp_max', 'temp_min'], axis=1, inplace=True)
+    df["temp_y"] = df[["Close", "temp_max", "temp_min"]].apply(add_B_S_H, axis=1)
+    y = df["temp_y"].copy()
+    df.drop(['temp_max', 'temp_min', 'temp_y'], axis=1, inplace=True)
     return y
 
 

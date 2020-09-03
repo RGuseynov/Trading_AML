@@ -54,7 +54,7 @@ df.index = pd.to_datetime(df.index)
 
 df = df[df.index.year >= ml_experiment["years_for_training"][0]]
 # ad TA for all data(from start training date to end test date)
-df = fe.add_BBands_TA(df)
+df = fe.add_custom_TA(df)
 # same for labels
 window_size = 21
 df_y = dl.create_labels(df, window_size)
@@ -75,6 +75,7 @@ y_test = df_y[df_y.index.year == ml_experiment["years_for_test"][0]]
 
 #logs
 ml_experiment["features_informations"] = {}
+ml_experiment["features_informations"]["number_of_features"] = len(list(X_train.columns))
 ml_experiment["features_informations"]["features"] = list(X_train.columns)
 ml_experiment["features_informations"]["target"] = "predict if local min(BUY:1), max(SELL:0) or not(HOLD:2)"
 ml_experiment["features_informations"]["target_window_size"] = window_size
@@ -110,7 +111,7 @@ cm_aml = {"schema_type": "confusion_matrix",
 run.log_confusion_matrix("confusion matrix", cm_aml)
 
 plot_helper = ph.XGBoostPlotHelper(xg_model)
-run.log_image("features importances", plot=plot_helper.get_features_importances())
+run.log_image("features importances", plot=plot_helper.get_features_importances(100))
 
 # running backtest
 bk_output_1 = bk.do_back_test(X_backtest, bk.B_S_H, ml_experiment["backtest_parameters_1"]["thresold"], 
@@ -129,9 +130,10 @@ run.log("worst trade", ml_experiment["backtest_results_2"]["Worst Trade [%]"])
 
 os.makedirs('outputs', exist_ok=True)
 # note file saved in the outputs folder is automatically uploaded into experiment record
-with open("outputs/BoolingerB_model.pkl", "wb") as file:
+with open("outputs/xgb-BSH-ta_model.pkl", "wb") as file:
     pickle.dump(xg_model, file)
 with open("outputs/training_info.json", "w") as file:
     json.dump(ml_experiment, file, indent=4, default=str)
 
 run.complete()
+

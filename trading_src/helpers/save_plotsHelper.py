@@ -30,7 +30,7 @@ class XGBoostPlotHelper():
         plt.savefig(self.destination_path + "/features_importance.png")
 
     def get_features_importances(self, max_num_features=25):
-        fig, ax = plt.subplots(figsize=(10,10))
+        fig, ax = plt.subplots(figsize=(20,20))
         xgb.plot_importance(self.model, ax=ax, max_num_features=max_num_features)
         return fig
 

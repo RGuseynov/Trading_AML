@@ -35,10 +35,10 @@ estimator = Estimator(source_directory="trading_src",
               inputs=[data.as_named_input('bitcoin')],
               compute_target = cluster_name, # Use the compute target created previously
               environment_definition = registered_env,
-              entry_script='aml_experiments/BoolingerB/boolingerB_script.py')
+              entry_script='aml_experiments/xgb_BSH_ta_train/xgb_BSH_ta_train_script.py')
 
 # Create an experiment
-experiment = Experiment(workspace = ws, name = 'BoolingerB-training')
+experiment = Experiment(workspace = ws, name = 'xgb-BSH-ta-train')
 
 # Run the experiment
 run = experiment.submit(config=estimator)
@@ -46,6 +46,6 @@ run = experiment.submit(config=estimator)
 run.wait_for_completion()
 
 # Register the model
-run.register_model(model_path='outputs/BoolingerB_model.pkl', model_name='BoolingerB_model',
+run.register_model(model_path='outputs/xgb-BSH-ta_model.pkl', model_name='xgb-BSH-ta_model',
                    tags={'Training context':'Azure ML compute'}, properties={'return no fee': run.get_metrics()['return no fee'], 
                                                                              'return with fee': run.get_metrics()['return with fee']})

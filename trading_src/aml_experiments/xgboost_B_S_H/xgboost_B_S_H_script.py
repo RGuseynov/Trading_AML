@@ -57,7 +57,7 @@ df = fe.add_TA(df)
 X_train = df[(df.index.year >= ml_experiment["years_for_training"][0]) & (df.index.year <= ml_experiment["years_for_training"][1])]
 X_test = df[df.index.year == ml_experiment["years_for_test"][0]]
 
-window_size = 11
+window_size = 21
 y_train = dl.create_labels(X_train, window_size)
 y_test = dl.create_labels(X_test, window_size)
 
