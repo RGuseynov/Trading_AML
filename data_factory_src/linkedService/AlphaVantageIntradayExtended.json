@@ -1,0 +1,12 @@
+{
+	"name": "AlphaVantageIntradayExtended",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://www.alphavantage.co",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
