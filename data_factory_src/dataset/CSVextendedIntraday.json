@@ -7,7 +7,8 @@
 		},
 		"parameters": {
 			"Symbol": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "IBM"
 			},
 			"Interval": {
 				"type": "string"
@@ -25,7 +26,7 @@
 			"location": {
 				"type": "HttpServerLocation",
 				"relativeUrl": {
-					"value": "query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=IBM&interval=15min&slice=year1month1&apikey=demo",
+					"value": "query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=dataset().Symbol&interval=15min&slice=year1month1&apikey=demo",
 					"type": "Expression"
 				}
 			},
