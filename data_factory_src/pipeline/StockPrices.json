@@ -1,0 +1,7 @@
+{
+	"name": "StockPrices",
+	"properties": {
+		"description": "Retrieve Stock prices from Alphavantage and stor in financial SQL Database",
+		"annotations": []
+	}
+}
