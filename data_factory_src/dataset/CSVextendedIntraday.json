@@ -6,17 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"Symbol": {
-				"type": "string",
-				"defaultValue": "IBM"
-			},
-			"Interval": {
-				"type": "string"
-			},
-			"Year": {
-				"type": "string"
-			},
-			"Month": {
+			"RelativeURL": {
 				"type": "string"
 			}
 		},
@@ -26,7 +16,7 @@
 			"location": {
 				"type": "HttpServerLocation",
 				"relativeUrl": {
-					"value": "@/query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=dataset().Symbol&interval=15min&slice=year1month1&apikey=demo",
+					"value": "@dataset().RelativeURL",
 					"type": "Expression"
 				}
 			},

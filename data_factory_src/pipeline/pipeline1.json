@@ -32,12 +32,33 @@
 						"referenceName": "CSVextendedIntraday",
 						"type": "DatasetReference",
 						"parameters": {
-							"Symbol": "IBM"
+							"RelativeURL": {
+								"value": "@concat('query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=', variables('SymbolV'), '&interval=', variables('IntervalV'), 'min&slice=year', variables('YearV'), 'month', variables('MonthV'), '&apikey=demo')",
+								"type": "Expression"
+							}
 						}
 					}
 				]
 			}
 		],
+		"variables": {
+			"SymbolV": {
+				"type": "String",
+				"defaultValue": "IBM"
+			},
+			"IntervalV": {
+				"type": "String",
+				"defaultValue": "15"
+			},
+			"YearV": {
+				"type": "String",
+				"defaultValue": "1"
+			},
+			"MonthV": {
+				"type": "String",
+				"defaultValue": "1"
+			}
+		},
 		"annotations": []
 	}
 }
