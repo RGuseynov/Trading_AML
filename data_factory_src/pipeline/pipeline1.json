@@ -39,6 +39,32 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "IncrementYear",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "YearV",
+					"value": {
+						"value": "@variables('IndexYear')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "IncrementIndexYear",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "IndexYear",
+					"value": {
+						"value": "@string(add(int(variables('YearV')),1))",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
@@ -55,6 +81,14 @@
 				"defaultValue": "1"
 			},
 			"MonthV": {
+				"type": "String",
+				"defaultValue": "1"
+			},
+			"IndexYear": {
+				"type": "String",
+				"defaultValue": "1"
+			},
+			"IndexMonth": {
 				"type": "String",
 				"defaultValue": "1"
 			}
