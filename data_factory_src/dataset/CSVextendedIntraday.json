@@ -1,0 +1,64 @@
+{
+	"name": "CSVextendedIntraday",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AlphaVantageIntradayExtended",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Symbol": {
+				"type": "string"
+			},
+			"Interval": {
+				"type": "string"
+			},
+			"Year": {
+				"type": "string"
+			},
+			"Month": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=dataset().Symbol&interval=15min&slice=year1month1&apikey=demo",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "time",
+				"type": "String"
+			},
+			{
+				"name": "open",
+				"type": "String"
+			},
+			{
+				"name": "high",
+				"type": "String"
+			},
+			{
+				"name": "low",
+				"type": "String"
+			},
+			{
+				"name": "close",
+				"type": "String"
+			},
+			{
+				"name": "volume",
+				"type": "String"
+			}
+		]
+	}
+}
