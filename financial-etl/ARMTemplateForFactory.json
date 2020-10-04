@@ -7,6 +7,14 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "financial-etl"
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
+		},
+		"AlphaVantageIntradayExtended_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.alphavantage.co"
+		},
 		"AlphaVantageLink_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://www.alphavantage.co/query"
@@ -39,6 +47,90 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/CSVextendedIntraday')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AlphaVantageIntradayExtended",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Symbol": {
+						"type": "string"
+					},
+					"Interval": {
+						"type": "string"
+					},
+					"Year": {
+						"type": "string"
+					},
+					"Month": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": {
+							"value": "@query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=dataset().Symbol&interval=15min&slice=year1month1&apikey=demo",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "time",
+						"type": "String"
+					},
+					{
+						"name": "open",
+						"type": "String"
+					},
+					{
+						"name": "high",
+						"type": "String"
+					},
+					{
+						"name": "low",
+						"type": "String"
+					},
+					{
+						"name": "close",
+						"type": "String"
+					},
+					{
+						"name": "volume",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AlphaVantageIntradayExtended')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AlphaVantageIntradayExtended')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('AlphaVantageIntradayExtended_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AlphaVantageLink')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -65,6 +157,29 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabase1_connectionString')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault1",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "sqlserver-trading"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault1')]"
+			]
 		}
 	]
 }

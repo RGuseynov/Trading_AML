@@ -5,6 +5,12 @@
 		"factoryName": {
 			"value": "financial-etl"
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"value": ""
+		},
+		"AlphaVantageIntradayExtended_properties_typeProperties_url": {
+			"value": "https://www.alphavantage.co"
+		},
 		"AlphaVantageLink_properties_typeProperties_url": {
 			"value": "https://www.alphavantage.co/query"
 		},

@@ -7,6 +7,14 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "financial-etl"
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
+		},
+		"AlphaVantageIntradayExtended_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.alphavantage.co"
+		},
 		"AlphaVantageLink_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://www.alphavantage.co/query"
@@ -41,6 +49,12 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"AzureSqlDatabase1_connectionString": {
+						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
+					},
+					"AlphaVantageIntradayExtended_properties_typeProperties_url": {
+						"value": "[parameters('AlphaVantageIntradayExtended_properties_typeProperties_url')]"
 					},
 					"AlphaVantageLink_properties_typeProperties_url": {
 						"value": "[parameters('AlphaVantageLink_properties_typeProperties_url')]"
