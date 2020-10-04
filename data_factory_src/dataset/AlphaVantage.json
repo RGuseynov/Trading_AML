@@ -1,0 +1,12 @@
+{
+	"name": "AlphaVantage",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AlphaVantageLink",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
