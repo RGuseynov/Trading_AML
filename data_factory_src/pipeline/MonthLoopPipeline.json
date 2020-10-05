@@ -1,5 +1,5 @@
 {
-	"name": "StockPriceImport",
+	"name": "MonthLoopPipeline",
 	"properties": {
 		"activities": [
 			{
