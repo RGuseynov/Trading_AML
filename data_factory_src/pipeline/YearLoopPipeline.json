@@ -19,7 +19,13 @@
 									"referenceName": "MonthLoopPipeline",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true
+								"waitOnCompletion": true,
+								"parameters": {
+									"YearP": {
+										"value": "@variables('YearV')",
+										"type": "Expression"
+									}
+								}
 							}
 						}
 					],
