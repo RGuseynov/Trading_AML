@@ -181,7 +181,7 @@
 		"variables": {
 			"SymbolV": {
 				"type": "String",
-				"defaultValue": "MSFT"
+				"defaultValue": "IBM"
 			},
 			"IntervalV": {
 				"type": "String",
