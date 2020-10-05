@@ -49,42 +49,70 @@
 						"type": "TabularTranslator",
 						"mappings": [
 							{
+								"source": {
+									"name": "SymbolC",
+									"type": "String"
+								},
 								"sink": {
 									"name": "Symbol",
 									"type": "String"
 								}
 							},
 							{
+								"source": {
+									"name": "time",
+									"type": "DateTime"
+								},
 								"sink": {
 									"name": "Date",
 									"type": "DateTime"
 								}
 							},
 							{
+								"source": {
+									"name": "IntervalC",
+									"type": "String"
+								},
 								"sink": {
 									"name": "Interval_minutes",
 									"type": "Int16"
 								}
 							},
 							{
+								"source": {
+									"name": "open",
+									"type": "Double"
+								},
 								"sink": {
 									"name": "Open_price",
 									"type": "Single"
 								}
 							},
 							{
+								"source": {
+									"name": "high",
+									"type": "Double"
+								},
 								"sink": {
 									"name": "High_price",
 									"type": "Single"
 								}
 							},
 							{
+								"source": {
+									"name": "low",
+									"type": "Double"
+								},
 								"sink": {
 									"name": "Low_price",
 									"type": "Single"
 								}
 							},
 							{
+								"source": {
+									"name": "close",
+									"type": "Double"
+								},
 								"sink": {
 									"name": "Close_price",
 									"type": "Single"
@@ -93,7 +121,7 @@
 							{
 								"source": {
 									"name": "volume",
-									"type": "String"
+									"type": "Double"
 								},
 								"sink": {
 									"name": "Volume",
