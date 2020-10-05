@@ -17,6 +17,22 @@
 				"typeProperties": {
 					"source": {
 						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "SymbolC",
+								"value": {
+									"value": "@variables('SymbolV')",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "IntervalC",
+								"value": {
+									"value": "@variables('IntervalV')",
+									"type": "Expression"
+								}
+							}
+						],
 						"storeSettings": {
 							"type": "HttpReadSettings",
 							"requestMethod": "GET"
@@ -25,7 +41,67 @@
 							"type": "DelimitedTextReadSettings"
 						}
 					},
-					"enableStaging": false
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"sink": {
+									"name": "Symbol",
+									"type": "String"
+								}
+							},
+							{
+								"sink": {
+									"name": "Date",
+									"type": "DateTime"
+								}
+							},
+							{
+								"sink": {
+									"name": "Interval_minutes",
+									"type": "Int16"
+								}
+							},
+							{
+								"sink": {
+									"name": "Open_price",
+									"type": "Single"
+								}
+							},
+							{
+								"sink": {
+									"name": "High_price",
+									"type": "Single"
+								}
+							},
+							{
+								"sink": {
+									"name": "Low_price",
+									"type": "Single"
+								}
+							},
+							{
+								"sink": {
+									"name": "Close_price",
+									"type": "Single"
+								}
+							},
+							{
+								"source": {
+									"name": "volume",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Volume",
+									"type": "Single"
+								}
+							}
+						]
+					}
 				},
 				"inputs": [
 					{
@@ -37,6 +113,12 @@
 								"type": "Expression"
 							}
 						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "StocksTable",
+						"type": "DatasetReference"
 					}
 				]
 			},
