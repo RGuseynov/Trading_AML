@@ -22,7 +22,7 @@
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "Execute Pipeline1",
+							"name": "ExecuteYearLoop",
 							"type": "ExecutePipeline",
 							"dependsOn": [],
 							"userProperties": [],
