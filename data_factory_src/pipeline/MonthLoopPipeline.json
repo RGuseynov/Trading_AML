@@ -32,7 +32,7 @@
 										{
 											"name": "SymbolC",
 											"value": {
-												"value": "@variables('SymbolV')",
+												"value": "@pipeline().parameters.SymbolP",
 												"type": "Expression"
 											}
 										},
