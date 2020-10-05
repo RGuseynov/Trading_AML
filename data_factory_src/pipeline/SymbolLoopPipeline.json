@@ -30,7 +30,13 @@
 									"referenceName": "YearLoopPipeline",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true
+								"waitOnCompletion": true,
+								"parameters": {
+									"SymbolP": {
+										"value": "@item().symbole",
+										"type": "Expression"
+									}
+								}
 							}
 						}
 					]
