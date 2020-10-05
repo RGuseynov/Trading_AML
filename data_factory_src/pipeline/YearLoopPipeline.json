@@ -8,6 +8,10 @@
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
+					"expression": {
+						"value": "@greater(int(variables('YearV')), 2)",
+						"type": "Expression"
+					},
 					"activities": [
 						{
 							"name": "ExecuteMonthLoop",
@@ -69,7 +73,7 @@
 							}
 						}
 					],
-					"timeout": "7.00:00:00"
+					"timeout": "0.01:00:00"
 				}
 			}
 		],
