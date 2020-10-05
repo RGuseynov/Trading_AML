@@ -19,6 +19,7 @@
 						"value": "@activity('RetrieveSymbols').output.value",
 						"type": "Expression"
 					},
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "Execute Pipeline1",
@@ -33,7 +34,7 @@
 								"waitOnCompletion": true,
 								"parameters": {
 									"SymbolP": {
-										"value": "@item().Symbole",
+										"value": "@item().Symbol",
 										"type": "Expression"
 									}
 								}
