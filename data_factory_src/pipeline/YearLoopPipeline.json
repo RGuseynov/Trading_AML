@@ -78,7 +78,7 @@
 			}
 		],
 		"parameters": {
-			"Symbol": {
+			"SymbolP": {
 				"type": "string"
 			}
 		},
