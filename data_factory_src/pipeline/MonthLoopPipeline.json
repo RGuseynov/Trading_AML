@@ -149,7 +149,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"RelativeURL": {
-											"value": "@concat('query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=', variables('SymbolV'), '&interval=', variables('IntervalV'), 'min&slice=year', pipeline().parameters.YearP, 'month', variables('MonthV'), '&apikey=demo')",
+											"value": "@concat('query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=', variables('SymbolV'), '&interval=', variables('IntervalV'), 'min&slice=year', pipeline().parameters.YearP, 'month', variables('MonthV'), '&apikey=ok')",
 											"type": "Expression"
 										}
 									}
