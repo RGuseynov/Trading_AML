@@ -77,6 +77,11 @@
 				}
 			}
 		],
+		"parameters": {
+			"Symbol": {
+				"type": "string"
+			}
+		},
 		"variables": {
 			"YearV": {
 				"type": "String",
