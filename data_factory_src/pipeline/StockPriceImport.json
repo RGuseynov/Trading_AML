@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "CopyDataToSQL",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -45,6 +45,7 @@
 						"type": "AzureSqlSink"
 					},
 					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
