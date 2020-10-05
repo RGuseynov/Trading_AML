@@ -33,7 +33,7 @@
 								"waitOnCompletion": true,
 								"parameters": {
 									"SymbolP": {
-										"value": "@item().symbole",
+										"value": "@item().Symbole",
 										"type": "Expression"
 									}
 								}
