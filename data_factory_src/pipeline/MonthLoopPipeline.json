@@ -14,7 +14,7 @@
 					},
 					"activities": [
 						{
-							"name": "CopyDataToSQL_copy1",
+							"name": "CopyDataToSQL",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -167,7 +167,7 @@
 							"type": "SetVariable",
 							"dependsOn": [
 								{
-									"activity": "CopyDataToSQL_copy1",
+									"activity": "CopyDataToSQL",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -207,6 +207,12 @@
 				}
 			}
 		],
+		"parameters": {
+			"YearP": {
+				"type": "int",
+				"defaultValue": 1
+			}
+		},
 		"variables": {
 			"SymbolV": {
 				"type": "String",
