@@ -28,6 +28,10 @@
 									"YearP": {
 										"value": "@variables('YearV')",
 										"type": "Expression"
+									},
+									"SymbolP": {
+										"value": "@pipeline().parameters.SymbolP",
+										"type": "Expression"
 									}
 								}
 							}
