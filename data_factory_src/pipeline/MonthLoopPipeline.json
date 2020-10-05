@@ -220,17 +220,9 @@
 			},
 			"IntervalV": {
 				"type": "String",
-				"defaultValue": "15"
-			},
-			"YearV": {
-				"type": "String",
-				"defaultValue": "1"
+				"defaultValue": "60"
 			},
 			"MonthV": {
-				"type": "String",
-				"defaultValue": "1"
-			},
-			"IndexYear": {
 				"type": "String",
 				"defaultValue": "1"
 			},
