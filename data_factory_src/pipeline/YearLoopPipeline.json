@@ -27,6 +27,46 @@
 									}
 								}
 							}
+						},
+						{
+							"name": "IncrementYearIndex",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "ExecuteMonthLoop",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "YearIndex",
+								"value": {
+									"value": "@string(add(int(variables('YearV')), 1))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "SetYear",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "IncrementYearIndex",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "YearV",
+								"value": {
+									"value": "@variables('YearIndex')",
+									"type": "Expression"
+								}
+							}
 						}
 					],
 					"timeout": "7.00:00:00"
@@ -35,6 +75,10 @@
 		],
 		"variables": {
 			"YearV": {
+				"type": "String",
+				"defaultValue": "1"
+			},
+			"YearIndex": {
 				"type": "String",
 				"defaultValue": "1"
 			}
