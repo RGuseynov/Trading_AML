@@ -1,0 +1,46 @@
+{
+	"name": "CSVlastMonthIntraday",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AlphaVantageIntradayExtended",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "timestamp",
+				"type": "String"
+			},
+			{
+				"name": "open",
+				"type": "String"
+			},
+			{
+				"name": "high",
+				"type": "String"
+			},
+			{
+				"name": "low",
+				"type": "String"
+			},
+			{
+				"name": "close",
+				"type": "String"
+			},
+			{
+				"name": "volume",
+				"type": "String"
+			}
+		]
+	}
+}
