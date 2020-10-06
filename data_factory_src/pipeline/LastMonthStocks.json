@@ -66,6 +66,22 @@
 							"typeProperties": {
 								"source": {
 									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "SymbolC",
+											"value": {
+												"value": "@item().Symbol",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "IntervalC",
+											"value": {
+												"value": "@variables('IntervalV')",
+												"type": "Expression"
+											}
+										}
+									],
 									"storeSettings": {
 										"type": "HttpReadSettings",
 										"requestMethod": "GET"
@@ -74,11 +90,138 @@
 										"type": "DelimitedTextReadSettings"
 									}
 								},
-								"enableStaging": false
+								"sink": {
+									"type": "AzureSqlSink",
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"enableSkipIncompatibleRow": true,
+								"logStorageSettings": {
+									"linkedServiceName": {
+										"referenceName": "AzureBlobStorage1",
+										"type": "LinkedServiceReference"
+									}
+								},
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "SymbolC",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Symbol",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "timestamp",
+												"type": "DateTime",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Date",
+												"type": "DateTime",
+												"physicalType": "datetime"
+											}
+										},
+										{
+											"source": {
+												"name": "IntervalC",
+												"type": "String"
+											},
+											"sink": {
+												"name": "Interval_minutes",
+												"type": "Int16",
+												"physicalType": "smallint"
+											}
+										},
+										{
+											"source": {
+												"name": "open",
+												"type": "Single",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Open_price",
+												"type": "Single",
+												"physicalType": "real"
+											}
+										},
+										{
+											"source": {
+												"name": "high",
+												"type": "Single",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "High_price",
+												"type": "Single",
+												"physicalType": "real"
+											}
+										},
+										{
+											"source": {
+												"name": "low",
+												"type": "Single",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Low_price",
+												"type": "Single",
+												"physicalType": "real"
+											}
+										},
+										{
+											"source": {
+												"name": "close",
+												"type": "Single",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Close_price",
+												"type": "Single",
+												"physicalType": "real"
+											}
+										},
+										{
+											"source": {
+												"name": "volume",
+												"type": "Single",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Volume",
+												"type": "Single",
+												"physicalType": "real"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
 							},
 							"inputs": [
 								{
 									"referenceName": "CSVlastMonthIntraday",
+									"type": "DatasetReference",
+									"parameters": {
+										"RelativeURL": {
+											"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&apikey=ok&datatype=csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "StocksTable",
 									"type": "DatasetReference"
 								}
 							]
@@ -87,6 +230,12 @@
 				}
 			}
 		],
+		"variables": {
+			"IntervalV": {
+				"type": "String",
+				"defaultValue": "60"
+			}
+		},
 		"annotations": []
 	}
 }
