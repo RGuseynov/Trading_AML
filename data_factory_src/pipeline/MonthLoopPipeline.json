@@ -145,7 +145,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "CSVextendedIntraday",
+									"referenceName": "AlphaVantageCSV",
 									"type": "DatasetReference",
 									"parameters": {
 										"RelativeURL": {

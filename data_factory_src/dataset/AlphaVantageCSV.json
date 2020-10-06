@@ -1,5 +1,5 @@
 {
-	"name": "CSVextendedIntraday",
+	"name": "AlphaVantageCSV",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AlphaVantageIntradayExtended",
