@@ -1,5 +1,5 @@
 {
-	"name": "SymbolLoopPipeline",
+	"name": "SymbolLoopExtended",
 	"properties": {
 		"activities": [
 			{
@@ -28,7 +28,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "YearLoopPipeline",
+									"referenceName": "YearLoopExtended",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
