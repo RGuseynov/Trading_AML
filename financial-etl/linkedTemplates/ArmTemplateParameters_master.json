@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "financial-etl"
 		},
+		"AzureBlobStorage1_connectionString": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_connectionString": {
 			"value": ""
 		},

@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "financial-etl"
 		},
+		"AzureBlobStorage1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
+		},
 		"AzureSqlDatabase1_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
@@ -59,6 +63,19 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureKeyVault1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -99,16 +116,7 @@
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
-					"Symbol": {
-						"type": "string"
-					},
-					"Interval": {
-						"type": "string"
-					},
-					"Year": {
-						"type": "string"
-					},
-					"Month": {
+					"RelativeURL": {
 						"type": "string"
 					}
 				},
@@ -118,7 +126,7 @@
 					"location": {
 						"type": "HttpServerLocation",
 						"relativeUrl": {
-							"value": "@query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=dataset().Symbol&interval=15min&slice=year1month1&apikey=demo",
+							"value": "@dataset().RelativeURL",
 							"type": "Expression"
 						}
 					},
@@ -159,6 +167,47 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/List_Symbol_SP500')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "constituents_SP500_septembre_2020.csv",
+						"container": "financial-others"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Symbol",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Sector",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -179,6 +228,503 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/StocksTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Symbol",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Interval_minutes",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Open_price",
+						"type": "real",
+						"precision": 7
+					},
+					{
+						"name": "High_price",
+						"type": "real",
+						"precision": 7
+					},
+					{
+						"name": "Low_price",
+						"type": "real",
+						"precision": 7
+					},
+					{
+						"name": "Close_price",
+						"type": "real",
+						"precision": 7
+					},
+					{
+						"name": "Volume",
+						"type": "real",
+						"precision": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Stocks"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MonthLoopPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "MonthIteration",
+						"type": "Until",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(int(variables('MonthV')), 12)",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "CopyDataToSQL",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"additionalColumns": [
+												{
+													"name": "SymbolC",
+													"value": {
+														"value": "@pipeline().parameters.SymbolP",
+														"type": "Expression"
+													}
+												},
+												{
+													"name": "IntervalC",
+													"value": {
+														"value": "@variables('IntervalV')",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "HttpReadSettings",
+												"requestMethod": "GET"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink"
+										},
+										"enableStaging": false,
+										"enableSkipIncompatibleRow": true,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "SymbolC",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Symbol",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "time",
+														"type": "DateTime"
+													},
+													"sink": {
+														"name": "Date",
+														"type": "DateTime"
+													}
+												},
+												{
+													"source": {
+														"name": "IntervalC",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Interval_minutes",
+														"type": "Int16"
+													}
+												},
+												{
+													"source": {
+														"name": "open",
+														"type": "Double"
+													},
+													"sink": {
+														"name": "Open_price",
+														"type": "Single"
+													}
+												},
+												{
+													"source": {
+														"name": "high",
+														"type": "Double"
+													},
+													"sink": {
+														"name": "High_price",
+														"type": "Single"
+													}
+												},
+												{
+													"source": {
+														"name": "low",
+														"type": "Double"
+													},
+													"sink": {
+														"name": "Low_price",
+														"type": "Single"
+													}
+												},
+												{
+													"source": {
+														"name": "close",
+														"type": "Double"
+													},
+													"sink": {
+														"name": "Close_price",
+														"type": "Single"
+													}
+												},
+												{
+													"source": {
+														"name": "volume",
+														"type": "Double"
+													},
+													"sink": {
+														"name": "Volume",
+														"type": "Single"
+													}
+												}
+											]
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "CSVextendedIntraday",
+											"type": "DatasetReference",
+											"parameters": {
+												"RelativeURL": {
+													"value": "@concat('query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=', pipeline().parameters.SymbolP, '&interval=', variables('IntervalV'), 'min&slice=year', pipeline().parameters.YearP, 'month', variables('MonthV'), '&apikey=ok')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "StocksTable",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								},
+								{
+									"name": "IncrementMonthIndex",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "CopyDataToSQL",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "IndexMonth",
+										"value": {
+											"value": "@string(add(int(variables('MonthV')),1))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetMonth",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "IncrementMonthIndex",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "MonthV",
+										"value": {
+											"value": "@variables('IndexMonth')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"timeout": "0.01:00:00"
+						}
+					}
+				],
+				"parameters": {
+					"YearP": {
+						"type": "string",
+						"defaultValue": "1"
+					},
+					"SymbolP": {
+						"type": "string",
+						"defaultValue": "MSFT"
+					}
+				},
+				"variables": {
+					"IntervalV": {
+						"type": "String",
+						"defaultValue": "60"
+					},
+					"MonthV": {
+						"type": "String",
+						"defaultValue": "1"
+					},
+					"IndexMonth": {
+						"type": "String",
+						"defaultValue": "1"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/CSVextendedIntraday')]",
+				"[concat(variables('factoryId'), '/datasets/StocksTable')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/YearLoopPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "YearIteration",
+						"type": "Until",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(int(variables('YearV')), 2)",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "ExecuteMonthLoop",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "MonthLoopPipeline",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"YearP": {
+												"value": "@variables('YearV')",
+												"type": "Expression"
+											},
+											"SymbolP": {
+												"value": "@pipeline().parameters.SymbolP",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "IncrementYearIndex",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "ExecuteMonthLoop",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "YearIndex",
+										"value": {
+											"value": "@string(add(int(variables('YearV')), 1))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "SetYear",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "IncrementYearIndex",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "YearV",
+										"value": {
+											"value": "@variables('YearIndex')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"timeout": "0.01:00:00"
+						}
+					}
+				],
+				"parameters": {
+					"SymbolP": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"YearV": {
+						"type": "String",
+						"defaultValue": "1"
+					},
+					"YearIndex": {
+						"type": "String",
+						"defaultValue": "1"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/MonthLoopPipeline')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SymbolLoopPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEachSymbol",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "RetrieveSymbols",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('RetrieveSymbols').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "ExecuteYearLoop",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "YearLoopPipeline",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"SymbolP": {
+												"value": "@item().Symbol",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "RetrieveSymbols",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "List_Symbol_SP500",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/List_Symbol_SP500')]",
+				"[concat(variables('factoryId'), '/pipelines/YearLoopPipeline')]"
 			]
 		}
 	]
