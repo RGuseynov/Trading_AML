@@ -100,7 +100,8 @@
 									"linkedServiceName": {
 										"referenceName": "AzureBlobStorage1",
 										"type": "LinkedServiceReference"
-									}
+									},
+									"path": "data-factory-logs/LastMontStocksPipe"
 								},
 								"translator": {
 									"type": "TabularTranslator",
