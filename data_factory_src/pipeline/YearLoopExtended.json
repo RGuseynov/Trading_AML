@@ -1,0 +1,101 @@
+{
+	"name": "YearLoopExtended",
+	"properties": {
+		"activities": [
+			{
+				"name": "YearIteration",
+				"type": "Until",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(int(variables('YearV')), 2)",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "ExecuteMonthLoop",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "MonthLoopExtended",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"YearP": {
+										"value": "@variables('YearV')",
+										"type": "Expression"
+									},
+									"SymbolP": {
+										"value": "@pipeline().parameters.SymbolP",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "IncrementYearIndex",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "ExecuteMonthLoop",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "YearIndex",
+								"value": {
+									"value": "@string(add(int(variables('YearV')), 1))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "SetYear",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "IncrementYearIndex",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "YearV",
+								"value": {
+									"value": "@variables('YearIndex')",
+									"type": "Expression"
+								}
+							}
+						}
+					],
+					"timeout": "0.01:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"SymbolP": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"YearV": {
+				"type": "String",
+				"defaultValue": "1"
+			},
+			"YearIndex": {
+				"type": "String",
+				"defaultValue": "1"
+			}
+		},
+		"annotations": []
+	}
+}

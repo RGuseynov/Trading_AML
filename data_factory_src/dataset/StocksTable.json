@@ -1,0 +1,57 @@
+{
+	"name": "StocksTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Symbol",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Interval_minutes",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Open_price",
+				"type": "real",
+				"precision": 7
+			},
+			{
+				"name": "High_price",
+				"type": "real",
+				"precision": 7
+			},
+			{
+				"name": "Low_price",
+				"type": "real",
+				"precision": 7
+			},
+			{
+				"name": "Close_price",
+				"type": "real",
+				"precision": 7
+			},
+			{
+				"name": "Volume",
+				"type": "real",
+				"precision": 7
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Stocks"
+		}
+	}
+}
