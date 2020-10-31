@@ -54,8 +54,8 @@ class B_S_H(Strategy):
 
 
 def do_back_test(test_data, strategy, thresold=0, cash=10000, commission=0.001, filename=None):
-    test_data = test_data[["Open", "High", "Low", "Close", "Volume_(BTC)", "Prediction"]]
-    test_data = test_data.rename(columns={"Volume_(BTC)": "Volume"}) 
+    test_data = test_data[["Open", "High", "Low", "Close", "Volume", "Prediction"]]
+    #test_data = test_data.rename(columns={"Volume_(BTC)": "Volume"}) 
     
     bt = Backtest(test_data, strategy, cash=cash, commission=commission)
     output = bt.run(prediction=test_data["Prediction"], thresold=thresold)
@@ -79,8 +79,8 @@ if __name__ == "__main__":
     # conversion du df en matrix xgb pour le model
     dfMatrix = xgb.DMatrix(df)
     df["Prediction"] = model.predict(dfMatrix)
-    df = df[["Open", "High", "Low", "Close", "Volume_(BTC)", "Prediction"]]
-    df.rename(columns={"Volume_(BTC)": "Volume"}, inplace=True) 
+    df = df[["Open", "High", "Low", "Close", "Volume", "Prediction"]]
+    #df.rename(columns={"Volume_(BTC)": "Volume"}, inplace=True) 
     print(df)
 
     bt = Backtest(df, SimplePredictionFollowing, cash=10000, commission=.000)

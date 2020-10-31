@@ -25,10 +25,10 @@ import logics.data_labeling as dl
 
 # training info, data source parameters
 ml_experiment = {}
-ml_experiment["data_folder"] = "bitcoin_prepared_data"
+ml_experiment["data_folder"] = "SP500"
 ml_experiment["timeframe_data"] = "1H"
-ml_experiment["years_for_training"] = [2016, 2019]
-ml_experiment["years_for_test"] = [2020]
+ml_experiment["years_for_training"] = [2019, 2020]
+ml_experiment["years_for_test"] = [2019, 2020]
 
 # model parameters
 ml_experiment["model_hyperparameters"] = {"objective":"multi:softprob", "num_class": 3, 'colsample_bytree': 0.3,
@@ -45,17 +45,37 @@ run = Run.get_context()
 
 # load the bitcoin data (passed as an input dataset)
 print("Loading Data...")
-df = run.input_datasets['bitcoin'].to_pandas_dataframe()
+df_stocks = run.input_datasets['stocks'].to_pandas_dataframe()
+df_bitcoin = run.input_datasets['bitcoin'].to_pandas_dataframe()
 
-df = df.set_index(df["Timestamp"])
-df = df.drop(["Timestamp"], axis=1)
+df_bitcoin = df_bitcoin.set_index(df_bitcoin["Timestamp"])
+df_bitcoin = df_bitcoin.drop(["Timestamp"], axis=1)
+df_bitcoin.index = pd.to_datetime(df_bitcoin.index)
 
-df.index = pd.to_datetime(df.index)
+df_bitcoin =  df_bitcoin[df_bitcoin.index.year >= 2019]
+df_bitcoin.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+df_bitcoin = fe.add_TA(df_bitcoin)
 
+print(df_stocks)
+df_stocks.columns = ['Symbol', 'Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume']
+print(df_stocks)
 
-df = fe.add_TA(df)
-X_train = df[(df.index.year >= ml_experiment["years_for_training"][0]) & (df.index.year <= ml_experiment["years_for_training"][1])]
-X_test = df[df.index.year == ml_experiment["years_for_test"][0]]
+list_of_stocks_df = [s for _, s in df_stocks.groupby(['Symbol'])]
+list_of_stocks_df_with_TA = []
+for df_stock in list_of_stocks_df:
+    df_stock_with_TA = fe.add_TA(df_stock)
+    list_of_stocks_df_with_TA.append(df_stock_with_TA)
+
+df_stocks = pd.concat(list_of_stocks_df_with_TA)
+
+df_stocks = df_stocks.drop(['Symbol', 'Timestamp'], axis=1)
+
+print(df_stocks)
+
+print(df_stocks.info(memory_usage="deep", verbose=False))
+
+X_train = df_stocks
+X_test = df_bitcoin
 
 window_size = 21
 y_train = dl.create_labels(X_train, window_size)
@@ -74,11 +94,13 @@ sample_weights, ml_experiment["class_weights"] = utils.get_sample_weights(y_trai
 dtrain = xgb.DMatrix(X_train, weight=sample_weights, label=y_train, feature_names=list(X_train.columns))
 dtest = xgb.DMatrix(X_test, label=y_test, feature_names=list(X_train.columns))
 
+watchlist  = [(dtrain,'train'),(dtest,'eval')]
+
 # model training
 print("model training started")
 xg_model = xgb.train(params=ml_experiment["model_hyperparameters"], 
                    dtrain=dtrain, 
-                   num_boost_round=ml_experiment["Num_boost_round"])
+                   num_boost_round=ml_experiment["Num_boost_round"], evals=watchlist, verbose_eval=True)
 
 y_pred = xg_model.predict(dtest)
 y_best_preds = np.asarray([np.argmax(line) for line in y_pred])
@@ -112,7 +134,7 @@ run.log("return with fee", ml_experiment["backtest_results_2"]["Return [%]"])
 
 os.makedirs('outputs', exist_ok=True)
 # note file saved in the outputs folder is automatically uploaded into experiment record
-with open("outputs/xgboost_model_test.pkl", "wb") as file:
+with open("outputs/xgb-BSH-training-stocks.pkl", "wb") as file:
     pickle.dump(xg_model, file)
 with open("outputs/training_info.json", "w") as file:
     json.dump(ml_experiment, file, indent=4, default=str)

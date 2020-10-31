@@ -17,7 +17,7 @@ def remplissage_nan_initial(df: pd.DataFrame) -> pd.DataFrame:
 # traitement inital donnee brut BTC
 def traitement_initial():
     # Utiliser la date comme index, convertir unix time to datetime, garder que les dates apres 2014, ajouter les minutes manquantes
-    file_path = "data/bitcoin-historical-data/bitstampUSD_1-min_data_2012-01-01_to_2020-04-22.csv"
+    file_path = "data/bitcoin-historical-data/bitstampUSD_1-min_data_2012-01-01_to_2020-09-14.csv"
     print(os.getcwd())
     df = pd.read_csv(file_path, index_col="Timestamp")
     df.index = pd.to_datetime(df.index, unit="s")
@@ -34,25 +34,25 @@ def traitement_initial():
     df_2 = remplissage_nan_initial(df_2)
 
     # save csv with differents timeframes
-    resample_times = ["1T", "5T", "30T", "1H", "4H", "1D"]
+    resample_times = ["30T", "1H", "4H", "1D"]
     if not os.path.exists("data/bitcoin_prepared_data"):
         os.mkdir("data/bitcoin_prepared_data")
 
     for time in resample_times:
-        base_path = "data/bitcoin_prepared_data/" + time
+        base_path = "data/bitcoin_prepared_data_2/" + time
         if not os.path.exists(base_path):
             os.mkdir(base_path)
         
         df_1 = df_1.resample(time).agg({'Open': "first", 'High': "max", "Low": "min", "Close": "last", "Volume_(BTC)": "sum"})
         df_2 = df_2.resample(time).agg({'Open': "first", 'High': "max", "Low": "min", "Close": "last", "Volume_(BTC)": "sum"})
         
-        df_1.to_csv(base_path + "/bitstampUSD_data_2014-01-01_to_2015-01-05.csv")
+        #df_1.to_csv(base_path + "/bitstampUSD_data_2014-01-01_to_2015-01-05.csv")
 
         # create an unique csv for df_2
-        df_2.to_csv(base_path + "/bitstampUSD_data_2015-01-05_to_2020-04-22.csv")
+        df_2.to_csv(base_path + "/bitstampUSD_data_2015-01-05_to_2020-09-14.csv")
         # or one csv per year
-        for year in range(2015, 2021):
-            df_2[df_2.index.year == year].to_csv(base_path + "/bitstampUSD_data_" + str(year) + ".csv")
+        #for year in range(2015, 2021):
+        #    df_2[df_2.index.year == year].to_csv(base_path + "/bitstampUSD_data_" + str(year) + ".csv")
 
 
 

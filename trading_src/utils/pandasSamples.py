@@ -46,3 +46,10 @@ print(df[(df.index > begin) & (df.index < end)])
 df = df.resample('1H').agg({"Volume_(BTC)": np.sum, 'High': np.max})
 # ou
 df = df.resample("5T").agg({'Open': "first", 'High': "max", "Low": "min", "Close": "last", "Volume_(BTC)": "sum"})
+
+#remplacement de valeur avec un filtre par valeur min le long des lignes
+df_TA.loc[df_TA["Low"] <= 300, "Low"] = df_TA[["Open", "Close"]].min(axis=1)
+
+
+# connaitre l'usage memorie du dataframe sans le detail des colonnes
+print(df.info(memory_usage="deep", verbose=False))

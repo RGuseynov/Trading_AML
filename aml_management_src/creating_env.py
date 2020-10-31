@@ -9,18 +9,19 @@ from azureml.core.conda_dependencies import CondaDependencies
 ws = Workspace.from_config()
 print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws.name))
 
-myenv = Environment(name="xgboost-env")
-pip_packages=['azureml-sdk','pandas','xgboost','scikit-learn','matplotlib','seaborn','Backtesting','talib-binary','numpy','graphviz']
-conda_dep = CondaDependencies.create(pip_packages=pip_packages, python_version="3.6")
-#whl_url = Environment.add_private_pip_wheel(workspace=ws, file_path="TA_Lib-0.4.18-cp38-cp38-win_amd64.whl", exist_ok= True)
-whl_url = "https://tradingws4129079722.blob.core.windows.net/azureml/Environment/azureml-private-packages/TA_Lib-0.4.10-cp36-cp36m-manylinux1_x86_64.whl"
-#conda_dep.add_pip_package(whl_url)
-myenv.python.conda_dependencies=conda_dep
+#myenv = Environment(name="xgboost-env")
+#pip_packages=['azureml-sdk','pandas','xgboost','scikit-learn','matplotlib','seaborn','Backtesting','talib-binary','numpy','graphviz']
+#conda_dep = CondaDependencies.create(pip_packages=pip_packages, python_version="3.6")
+## not necessary with talib-binary
+##whl_url = Environment.add_private_pip_wheel(workspace=ws, file_path="TA_Lib-0.4.18-cp38-cp38-win_amd64.whl", exist_ok= True)
+#whl_url = "https://tradingws4129079722.blob.core.windows.net/azureml/Environment/azureml-private-packages/TA_Lib-0.4.10-cp36-cp36m-manylinux1_x86_64.whl"
+##conda_dep.add_pip_package(whl_url)
+#myenv.python.conda_dependencies=conda_dep
 
-print(myenv.name, 'defined.')
+##print(myenv.name, 'defined.')
 
-# Register the environment
-myenv.register(workspace=ws)
+## Register the environment
+#myenv.register(workspace=ws)
 
 
 envs = Environment.list(workspace=ws)
