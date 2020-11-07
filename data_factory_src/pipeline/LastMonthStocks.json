@@ -125,7 +125,7 @@
 										{
 											"source": {
 												"name": "open",
-												"type": "Single",
+												"type": "Double",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -137,7 +137,7 @@
 										{
 											"source": {
 												"name": "high",
-												"type": "Single",
+												"type": "Double",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -149,7 +149,7 @@
 										{
 											"source": {
 												"name": "low",
-												"type": "Single",
+												"type": "Double",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -161,7 +161,7 @@
 										{
 											"source": {
 												"name": "close",
-												"type": "Single",
+												"type": "Double",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -173,7 +173,7 @@
 										{
 											"source": {
 												"name": "volume",
-												"type": "Single",
+												"type": "Double",
 												"physicalType": "String"
 											},
 											"sink": {
