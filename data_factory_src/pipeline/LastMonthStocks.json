@@ -112,18 +112,6 @@
 										},
 										{
 											"source": {
-												"name": "timestamp",
-												"type": "DateTime",
-												"physicalType": "String"
-											},
-											"sink": {
-												"name": "Date",
-												"type": "DateTime",
-												"physicalType": "datetime"
-											}
-										},
-										{
-											"source": {
 												"name": "open",
 												"type": "String",
 												"physicalType": "String"
@@ -196,7 +184,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"RelativeURL": {
-											"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&outputsize=full&apikey=ok&datatype=csv')",
+											"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&outputsize=full&datatype=csv&apikey=ok2')",
 											"type": "Expression"
 										}
 									}
