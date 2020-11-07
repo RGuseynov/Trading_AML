@@ -19,10 +19,6 @@
 			"type": "string",
 			"defaultValue": "https://www.alphavantage.co"
 		},
-		"AlphaVantageLink_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://www.alphavantage.co/query"
-		},
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://tradingkeyvault.vault.azure.net/"
@@ -62,9 +58,6 @@
 					},
 					"AlphaVantageIntradayExtended_properties_typeProperties_url": {
 						"value": "[parameters('AlphaVantageIntradayExtended_properties_typeProperties_url')]"
-					},
-					"AlphaVantageLink_properties_typeProperties_url": {
-						"value": "[parameters('AlphaVantageLink_properties_typeProperties_url')]"
 					},
 					"AzureKeyVault1_properties_typeProperties_baseUrl": {
 						"value": "[parameters('AzureKeyVault1_properties_typeProperties_baseUrl')]"

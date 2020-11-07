@@ -14,9 +14,6 @@
 		"AlphaVantageIntradayExtended_properties_typeProperties_url": {
 			"value": "https://www.alphavantage.co"
 		},
-		"AlphaVantageLink_properties_typeProperties_url": {
-			"value": "https://www.alphavantage.co/query"
-		},
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"value": "https://tradingkeyvault.vault.azure.net/"
 		}

@@ -19,10 +19,6 @@
 			"type": "string",
 			"defaultValue": "https://www.alphavantage.co"
 		},
-		"AlphaVantageLink_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://www.alphavantage.co/query"
-		},
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://tradingkeyvault.vault.azure.net/"
@@ -33,7 +29,241 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/MonthLoopPipeline')]",
+			"name": "[concat(parameters('factoryName'), '/LastMonthStocks')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Retrieve last month-2month intraday prices",
+				"activities": [
+					{
+						"name": "RetrieveSymbols",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "List_Symbol_SP500",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEachSymbol",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "RetrieveSymbols",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('RetrieveSymbols').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "CopyLastMonthToSql",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"additionalColumns": [
+												{
+													"name": "SymbolC",
+													"value": {
+														"value": "@item().Symbol",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "HttpReadSettings",
+												"requestMethod": "GET"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"enableSkipIncompatibleRow": true,
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "AzureBlobStorage1",
+												"type": "LinkedServiceReference"
+											},
+											"path": "data-factory-logs/LastMontStocksPipe"
+										},
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "SymbolC",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Symbol",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "timestamp",
+														"type": "DateTime",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Date",
+														"type": "DateTime",
+														"physicalType": "datetime"
+													}
+												},
+												{
+													"source": {
+														"name": "open",
+														"type": "Single",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Open_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "high",
+														"type": "Single",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "High_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "low",
+														"type": "Single",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Low_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "close",
+														"type": "Single",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Close_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "volume",
+														"type": "Single",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Volume",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "AlphaVantageCSV",
+											"type": "DatasetReference",
+											"parameters": {
+												"RelativeURL": {
+													"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&outputsize=full&apikey=ok&datatype=csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "StocksTable",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"variables": {
+					"IntervalV": {
+						"type": "String",
+						"defaultValue": "60"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/List_Symbol_SP500')]",
+				"[concat(variables('factoryId'), '/datasets/AlphaVantageCSV')]",
+				"[concat(variables('factoryId'), '/datasets/StocksTable')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MonthLoopExtended')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -181,7 +411,7 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "CSVextendedIntraday",
+											"referenceName": "AlphaVantageCSV",
 											"type": "DatasetReference",
 											"parameters": {
 												"RelativeURL": {
@@ -271,12 +501,12 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CSVextendedIntraday')]",
+				"[concat(variables('factoryId'), '/datasets/AlphaVantageCSV')]",
 				"[concat(variables('factoryId'), '/datasets/StocksTable')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SymbolLoopPipeline')]",
+			"name": "[concat(parameters('factoryName'), '/SymbolLoopExtended')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -307,7 +537,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "YearLoopPipeline",
+											"referenceName": "YearLoopExtended",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -358,11 +588,11 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/List_Symbol_SP500')]",
-				"[concat(variables('factoryId'), '/pipelines/YearLoopPipeline')]"
+				"[concat(variables('factoryId'), '/pipelines/YearLoopExtended')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/YearLoopPipeline')]",
+			"name": "[concat(parameters('factoryName'), '/YearLoopExtended')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -385,7 +615,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "MonthLoopPipeline",
+											"referenceName": "MonthLoopExtended",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -464,29 +694,11 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/MonthLoopPipeline')]"
+				"[concat(variables('factoryId'), '/pipelines/MonthLoopExtended')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AlphaVantage')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AlphaVantageLink",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "RestResource",
-				"typeProperties": {},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AlphaVantageLink')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CSVextendedIntraday')]",
+			"name": "[concat(parameters('factoryName'), '/AlphaVantageCSV')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -609,11 +821,6 @@
 						"scale": 3
 					},
 					{
-						"name": "Interval_minutes",
-						"type": "smallint",
-						"precision": 5
-					},
-					{
 						"name": "Open_price",
 						"type": "real",
 						"precision": 7
@@ -641,7 +848,7 @@
 				],
 				"typeProperties": {
 					"schema": "dbo",
-					"table": "Stocks"
+					"table": "Stocks_1H"
 				}
 			},
 			"dependsOn": [
@@ -657,21 +864,6 @@
 				"type": "HttpServer",
 				"typeProperties": {
 					"url": "[parameters('AlphaVantageIntradayExtended_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": true,
-					"authenticationType": "Anonymous"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AlphaVantageLink')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "RestService",
-				"typeProperties": {
-					"url": "[parameters('AlphaVantageLink_properties_typeProperties_url')]",
 					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
 				}
