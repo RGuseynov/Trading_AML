@@ -73,13 +73,6 @@
 												"value": "@item().Symbol",
 												"type": "Expression"
 											}
-										},
-										{
-											"name": "IntervalC",
-											"value": {
-												"value": "@variables('IntervalV')",
-												"type": "Expression"
-											}
 										}
 									],
 									"storeSettings": {
@@ -127,17 +120,6 @@
 												"name": "Date",
 												"type": "DateTime",
 												"physicalType": "datetime"
-											}
-										},
-										{
-											"source": {
-												"name": "IntervalC",
-												"type": "String"
-											},
-											"sink": {
-												"name": "Interval_minutes",
-												"type": "Int16",
-												"physicalType": "smallint"
 											}
 										},
 										{
@@ -214,7 +196,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"RelativeURL": {
-											"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&apikey=ok&datatype=csv')",
+											"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&outputsize=full&apikey=ok&datatype=csv')",
 											"type": "Expression"
 										}
 									}
