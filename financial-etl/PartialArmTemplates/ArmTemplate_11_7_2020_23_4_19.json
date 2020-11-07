@@ -1,0 +1,231 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "financial-etl"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/LastMonthStocks')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Retrieve last month-2month intraday prices",
+				"activities": [
+					{
+						"name": "RetrieveSymbols",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "List_Symbol_SP500",
+								"type": "DatasetReference"
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEachSymbol",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "RetrieveSymbols",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('RetrieveSymbols').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "CopyLastMonthToSql",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"additionalColumns": [
+												{
+													"name": "SymbolC",
+													"value": {
+														"value": "@item().Symbol",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "HttpReadSettings",
+												"requestMethod": "GET"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"enableSkipIncompatibleRow": true,
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "AzureBlobStorage1",
+												"type": "LinkedServiceReference"
+											},
+											"path": "data-factory-logs/LastMontStocksPipe"
+										},
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "SymbolC",
+														"type": "String"
+													},
+													"sink": {
+														"name": "Symbol",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "open",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Open_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "high",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "High_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "low",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Low_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "close",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Close_price",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												},
+												{
+													"source": {
+														"name": "volume",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Volume",
+														"type": "Single",
+														"physicalType": "real"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "AlphaVantageCSV",
+											"type": "DatasetReference",
+											"parameters": {
+												"RelativeURL": {
+													"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&outputsize=full&datatype=csv&apikey=ok2')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "StocksTable",
+											"type": "DatasetReference"
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"variables": {
+					"IntervalV": {
+						"type": "String",
+						"defaultValue": "60"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		}
+	]
+}
