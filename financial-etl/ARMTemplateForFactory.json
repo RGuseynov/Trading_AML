@@ -146,7 +146,7 @@
 												{
 													"source": {
 														"name": "timestamp",
-														"type": "DateTime",
+														"type": "String",
 														"physicalType": "String"
 													},
 													"sink": {
@@ -158,7 +158,7 @@
 												{
 													"source": {
 														"name": "open",
-														"type": "Double",
+														"type": "String",
 														"physicalType": "String"
 													},
 													"sink": {
@@ -170,7 +170,7 @@
 												{
 													"source": {
 														"name": "high",
-														"type": "Double",
+														"type": "String",
 														"physicalType": "String"
 													},
 													"sink": {
@@ -182,7 +182,7 @@
 												{
 													"source": {
 														"name": "low",
-														"type": "Double",
+														"type": "String",
 														"physicalType": "String"
 													},
 													"sink": {
@@ -194,7 +194,7 @@
 												{
 													"source": {
 														"name": "close",
-														"type": "Double",
+														"type": "String",
 														"physicalType": "String"
 													},
 													"sink": {
@@ -206,7 +206,7 @@
 												{
 													"source": {
 														"name": "volume",
-														"type": "Double",
+														"type": "String",
 														"physicalType": "String"
 													},
 													"sink": {
