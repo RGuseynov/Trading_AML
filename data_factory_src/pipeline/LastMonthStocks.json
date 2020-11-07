@@ -113,7 +113,7 @@
 										{
 											"source": {
 												"name": "timestamp",
-												"type": "String",
+												"type": "DateTime",
 												"physicalType": "String"
 											},
 											"sink": {
