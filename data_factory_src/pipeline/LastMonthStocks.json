@@ -73,13 +73,6 @@
 												"value": "@item().Symbol",
 												"type": "Expression"
 											}
-										},
-										{
-											"name": "IntervalC",
-											"value": {
-												"value": "@variables('IntervalV')",
-												"type": "Expression"
-											}
 										}
 									],
 									"storeSettings": {
@@ -119,31 +112,8 @@
 										},
 										{
 											"source": {
-												"name": "timestamp",
-												"type": "DateTime",
-												"physicalType": "String"
-											},
-											"sink": {
-												"name": "Date",
-												"type": "DateTime",
-												"physicalType": "datetime"
-											}
-										},
-										{
-											"source": {
-												"name": "IntervalC",
-												"type": "String"
-											},
-											"sink": {
-												"name": "Interval_minutes",
-												"type": "Int16",
-												"physicalType": "smallint"
-											}
-										},
-										{
-											"source": {
 												"name": "open",
-												"type": "Single",
+												"type": "String",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -155,7 +125,7 @@
 										{
 											"source": {
 												"name": "high",
-												"type": "Single",
+												"type": "String",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -167,7 +137,7 @@
 										{
 											"source": {
 												"name": "low",
-												"type": "Single",
+												"type": "String",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -179,7 +149,7 @@
 										{
 											"source": {
 												"name": "close",
-												"type": "Single",
+												"type": "String",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -191,7 +161,7 @@
 										{
 											"source": {
 												"name": "volume",
-												"type": "Single",
+												"type": "String",
 												"physicalType": "String"
 											},
 											"sink": {
@@ -214,7 +184,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"RelativeURL": {
-											"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&apikey=ok&datatype=csv')",
+											"value": "@concat('query?function=TIME_SERIES_INTRADAY&symbol=', item().Symbol, '&interval=', variables('IntervalV'), 'min&outputsize=full&datatype=csv&apikey=ok2')",
 											"type": "Expression"
 										}
 									}

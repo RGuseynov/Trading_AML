@@ -19,11 +19,6 @@
 				"scale": 3
 			},
 			{
-				"name": "Interval_minutes",
-				"type": "smallint",
-				"precision": 5
-			},
-			{
 				"name": "Open_price",
 				"type": "real",
 				"precision": 7
@@ -51,7 +46,7 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "Stocks"
+			"table": "Stocks_1H"
 		}
 	}
 }
