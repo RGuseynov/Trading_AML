@@ -104,7 +104,7 @@ X_stocks_train = X_stocks_train.drop(["Symbol", 'Open', 'High', 'Low', 'Close', 
 X_stocks_test_bk = X_stocks_test[['Symbol','Open', 'High', 'Low', 'Close', 'Volume']]
 X_stocks_test = X_stocks_test.drop(['Symbol','Open', 'High', 'Low', 'Close', 'Volume'], axis=1)
 
-X_bitcoin_test_bk = X_bitocin_test[['Open', 'High', 'Low', 'Close', 'Volume']]
+X_bitcoin_test_bk = X_bitcoin_test[['Open', 'High', 'Low', 'Close', 'Volume']]
 X_bitcoin_test = X_bitcoin_test.drop(['Open', 'High', 'Low', 'Close', 'Volume'], axis=1)
 
 #logs
@@ -174,16 +174,25 @@ ml_experiment["backtest_return_stocks_mean_result_2"] = mean_returns_with_fees
 run.log("mean return stocks no fee", ml_experiment["backtest_return_stocks_mean_result_1"])
 run.log("mean return stocks with fee", ml_experiment["backtest_return_stocks_mean_result_2"])
 
-# running backtest on bitcoin
+# running backtest on bitcoin 2 years
 bk_output_1 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_1"]["thresold"], 
                                 ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "outputs/bk_plot_sans_frais")
 bk_output_2 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_2"]["thresold"], 
                                 ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "outputs/bk_plot_avec_frais")
-ml_experiment["backtest_bitocin_results_1"] = bk_output_1.to_dict()
-ml_experiment["backtest_bitocin_results_2"] = bk_output_2.to_dict()
+ml_experiment["backtest_bitcoin_results_2years_1"] = bk_output_1.to_dict()
+ml_experiment["backtest_bitcoin_results_2years_2"] = bk_output_2.to_dict()
+run.log("return bitcoin no fee 2 years", ml_experiment["backtest_bitcoin_results_2years_1"]["Return [%]"])
+run.log("return bitcoin with fee 2 years", ml_experiment["backtest_bitcoin_results_2years_2"]["Return [%]"])
 
-run.log("return bitcoin no fee", ml_experiment["backtest_bitocin_results_1"]["Return [%]"])
-run.log("return bitcoin with fee", ml_experiment["backtest_bitocin_results_2"]["Return [%]"])
+X_bitcoin_test_bk = X_bitcoin_test_bk[(X_bitcoin_test_bk.index.year == 2020) & (X_bitcoin_test_bk.index.month > 6)]
+bk_output_1 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_1"]["thresold"], 
+                                ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "outputs/bk_plot_sans_frais")
+bk_output_2 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_2"]["thresold"], 
+                                ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "outputs/bk_plot_avec_frais")
+ml_experiment["backtest_bitcoin_results_3months_1"] = bk_output_1.to_dict()
+ml_experiment["backtest_bitcoin_results_3months_2"] = bk_output_2.to_dict()
+run.log("return bitcoin no fee last 3 months", ml_experiment["backtest_bitcoin_results_3months_1"]["Return [%]"])
+run.log("return bitcoin with fee last 3 months", ml_experiment["backtest_bitcoin_results_3months_2"]["Return [%]"])
 
 os.makedirs('outputs', exist_ok=True)
 # note file saved in the outputs folder is automatically uploaded into experiment record

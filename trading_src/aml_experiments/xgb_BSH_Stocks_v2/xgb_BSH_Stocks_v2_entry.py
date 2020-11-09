@@ -51,8 +51,10 @@ run.wait_for_completion()
 
 # Register the model
 run.register_model(model_path='outputs/xgb-BSH-training-stocks-v2.pkl', model_name='xgb-BSH-training-stocks-v2',
-                   tags={'Training context':'Azure ML compute'}, properties={'return bitcoin no fee': run.get_metrics()['return bitcoin no fee'], 
-                                                                             'return bitcoin with fee': run.get_metrics()['return bitcoin with fee']})
+                   tags={'Training context':'Azure ML compute'}, properties={'return bitcoin no fee last 3 months': run.get_metrics()['return bitcoin no fee last 3 months'], 
+                                                                             'return bitcoin with fee last 3 months': run.get_metrics()['return bitcoin with fee last 3 months'],
+                                                                             'mean return stocks no fee': run.get_metrics()['mean return stocks no fee'],
+                                                                             'mean return stocks with fee': run.get_metrics()['mean return stocks with fee']})
 
 # List registered models
 for model in Model.list(ws):
