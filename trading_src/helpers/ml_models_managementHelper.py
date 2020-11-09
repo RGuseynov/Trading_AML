@@ -6,6 +6,7 @@ import pickle
 from pathlib import Path
 
 
+#class to manage models localy
 class ManagementHelper():
 
     # creation of folders structure at initialisation of an instance of the class

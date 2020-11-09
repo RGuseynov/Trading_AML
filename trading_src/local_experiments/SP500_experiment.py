@@ -10,7 +10,6 @@ sys.path.append("trading_src")
 import logics.features_engineering as fe
 
 
-
 df = pd.read_csv("data/SP500_historical_data/SP500_1H.csv", index_col=0)
 
 df = df.rename(columns={"Open_price": "Open", "High_price": "High", "Low_price": "Low", "Close_price": "Close"})
