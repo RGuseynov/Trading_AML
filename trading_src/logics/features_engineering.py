@@ -139,31 +139,37 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
     #customise timeperiod for indicators
 
     #default 30 
-    t1_b = 30
-    t1_e = 31
+    t1_b = 10
+    t1_e = 201
+    t1_s = 5
 
     #default 14 
-    t2_b = 14
-    t2_e = 15
+    t2_b = 6
+    t2_e = 43
+    t2_s = 4
 
     #default 10 
-    t3_b = 10
-    t3_e = 11
+    t3_b = 4
+    t3_e = 21
+    t3_s = 2
 
     #default 5 
-    t4_b = 5
-    t4_e = 6
+    t4_b = 3
+    t4_e = 11
+    t4_s = 1
 
     #defaut 12
-    t_fast_b = 12
-    t_fast_e = 13
+    t_fast_b = 6
+    t_fast_e = 21
+    t_fast_s = 2
     #default 26
-    t_slow_b = 26
-    t_slow_e = 27
+    t_slow_b = 18
+    t_slow_e = 35
+    t_slow_s = 2
 
     # OVERLAP STUDIES
     # Boollinger Bands default period=5
-    for i in range(t4_b, t4_e):
+    for i in range(4, 41, 1):
         upper_band, medium_band, lower_band = BBANDS(close, timeperiod=i, nbdevup=2.0, nbdevdn=2.0)
         df["BBANDS_WIDTH_"+str(i)] = (upper_band - lower_band) / medium_band  
         df["BBANDS_%B_"+ str(i)] = (df['Close'] - lower_band) / (upper_band - lower_band)
@@ -177,29 +183,29 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
         #df["BBANDS_%B_" + str(i)] = (df['Close'] - MA + 2 * MSD) / (2 * 2 * MSD)
 
     # Simple Moving average default period=30  up to 200 ?
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["SMA_"+str(i)] = SMA(close, timeperiod=i, matype=0) / close
     # Weighted Moving Average default timeperiod=30
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["WMA_"+str(i)] = WMA(close, timeperiod=i) / close
     # Exponential Moving Average default period=30
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["EMA_"+str(i)] = EMA(close, timeperiod=i) / close
     # Double Exponential Moving Average default period=30
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["DEMA_"+str(i)] = DEMA(close, timeperiod=i) / close
     # Triple Exponential Moving Average default period=30
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["TEMA_"+str(i)] = TEMA(close, timeperiod=i) / close
     # Triple Exponential Moving Average (T3) default period=5, vfactor=0
-    for i in range(t4_b, t4_e):
-        for j in np.arange(0.05, 1.0, 0.05):
-            df["T3_"+str(i)+"_"+"{:2.2f}".format(j)] = T3(close, timeperiod=i, vfactor=j) / close
+    #for i in range(t4_b, t4_e):
+    #    for j in np.arange(0.05, 1.0, 0.05):
+    #        df["T3_"+str(i)+"_"+"{:2.2f}".format(j)] = T3(close, timeperiod=i, vfactor=j) / close
     # Triangular Moving Average default period=30
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["TRIMA_"+str(i)] = TRIMA(close, timeperiod=i) / close
     # Kaufman Adaptive Moving Average default period=30
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["KAMA_"+str(i)] = KAMA(close, timeperiod=i) / close
 
     ## Adaptive Moving Average default fastlimit=0, slowlimit=0  fast > slow
@@ -213,10 +219,10 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
     #real = MAVP(close, periods, minperiod=2, maxperiod=30, matype=0)
 
     # MidPoint over period default timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["MIDPOINT_"+str(i)] = MIDPOINT(close, timeperiod=i) / close
     # Midpoint Price over period default timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["MIDPRICE_"+str(i)] = MIDPRICE(inputs, timeperiod=i) / close
 
     # Parabolic SAR default acceleration=0.02, maximum=0.2
@@ -231,44 +237,44 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
 
     #MOMENTUM INDICATORS
     # Average Directional Movement Index default timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["ADX_"+str(i)] = ADX(inputs, timeperiod=i)
     # Average Directional Movement Index Rating default timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["ADXR_"+str(i)] = ADXR(inputs, timeperiod=i)
 
     #Absolute Price Oscillator default fastperiod=12, slowperiod=26, matype=0  slow_period > fast_period
-    for fast in range(t_fast_b,t_fast_e):
-        for slow in range(t_slow_b,t_slow_e):
+    for fast in range(t_fast_b,t_fast_e, t_fast_s):
+        for slow in range(t_slow_b,t_slow_e, t_slow_s):
             df["APO_"+str(fast)+"_"+str(slow)] = APO(close, fastperiod=fast, slowperiod=slow, matype=0)
 
     # Aroon default timeperiod=14 
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         aroondown, aroonup = AROON(inputs, timeperiod=i)
         df["AROON_DOWN_"+str(i)] = aroondown
         df["AROON_UP_"+str(i)] = aroonup
     # Aroon Oscillator timeperiod=14 difference between aroon up - aroon down 
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["AROONOSC_"+str(i)] = AROONOSC(inputs, timeperiod=i)
 
     # Balance Of Power
     df["BOP"] = BOP(inputs)
 
     #Commodity Channel Index default timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["CCI_"+str(i)] = CCI(inputs, timeperiod=i)
 
     #Chande Momentum Oscillator timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["CMO_"+str(i)] = CMO(close, timeperiod=i)
 
     #Directional Movement Index timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["DX_"+str(i)] = DX(inputs, timeperiod=i)
 
     #Moving Average Convergence/Divergence fastperiod=12, slowperiod=26, signalperiod=9 slow_period > fast_period
-    for fast in range(t_fast_b, t_fast_e):
-        for slow in range(t_slow_b, t_slow_e):
+    for fast in range(t_fast_b, t_fast_e, t_fast_s):
+        for slow in range(t_slow_b, t_slow_e, t_slow_s):
             for signal in range(9,10):
                 macd, macdsignal, macdhist = MACD(close, fastperiod=fast, slowperiod=slow, signalperiod=signal)
                 df["MACD_"+str(fast)+"_"+str(slow)+"_"+str(signal)] = macd
@@ -276,8 +282,8 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
                 df["MACD_HIST_"+str(fast)+"_"+str(slow)+"_"+str(signal)] = macdhist
 
     #MACD with controllable MA type fastperiod=12, slowperiod=26, signalperiod=9 slow_period > fast_period
-    for fast in range(t_fast_b, t_fast_e):
-        for slow in range(t_slow_b, t_slow_e):
+    for fast in range(t_fast_b, t_fast_e, t_fast_s):
+        for slow in range(t_slow_b, t_slow_e, t_slow_s):
             for signal in range(9,10):
                 macd, macdsignal, macdhist = MACDEXT(close, fastperiod=12, fastmatype=0, slowperiod=26, slowmatype=0, signalperiod=9, signalmatype=0)
                 df["MACD_"+str(fast)+"_"+str(slow)+"_"+str(signal)] = macd
@@ -285,52 +291,52 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
                 df["MACD_HIST_"+str(fast)+"_"+str(slow)+"_"+str(signal)] = macdhist
 
     #Money Flow Index timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["MFI_"+str(i)] = MFI(inputs, timeperiod=i)
 
     #Minus Directional Indicator timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["MINUS_DI_"+str(i)] = MINUS_DI(inputs, timeperiod=i)
 
     #Plus Directional Indicator timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["PLUS_DI_"+str(i)] = PLUS_DI(inputs, timeperiod=i)
 
     #Minus Directional Movement timeperiod=14  (need maybe some normalisation if NN)
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["MINUS_DM_"+str(i)] = MINUS_DM(inputs, timeperiod=i)
 
     #Minus Directional Movement timeperiod=14  (need maybe some normalisation if NN)
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["PLUS_DM_"+str(i)] = PLUS_DM(inputs, timeperiod=i)
 
     #Momentum timeperiod=10
-    for i in range(t3_b, t3_e):
+    for i in range(t3_b, t3_e, t3_s):
         df["MOM_"+str(i)] = MOM(close, timeperiod=i)
 
     #Percentage Price Oscillator fastperiod=12, slowperiod=26 slow_period > fast_period
-    for fast in range(t_fast_b, t_fast_e):
-        for slow in range(t_slow_b, t_slow_e):
+    for fast in range(t_fast_b, t_fast_e, t_fast_s):
+        for slow in range(t_slow_b, t_slow_e, t_slow_s):
             df["PPO_"+str(fast)+"_"+str(slow)] = PPO(close, fastperiod=fast, slowperiod=slow, matype=0)
 
     #Rate of change : ((price/prevPrice)-1)*100  timeperiod=10
-    for i in range(t3_b, t3_e):
+    for i in range(t3_b, t3_e, t3_s):
         df["ROC_"+str(i)] = ROC(close, timeperiod=i)
 
     #Rate of change Percentage: (price-prevPrice)/prevPrice  timeperiod=10
-    for i in range(t3_b, t3_e):
+    for i in range(t3_b, t3_e, t3_s):
         df["ROCP_"+str(i)] = ROCP(close, timeperiod=i)
 
     #Rate of change ratio: (price/prevPrice)  timeperiod=10
-    for i in range(t3_b, t3_e):
+    for i in range(t3_b, t3_e, t3_s):
         df["ROCR_"+str(i)] = ROCR(close, timeperiod=i)
 
     #Rate of change ratio 100 scale: (price/prevPrice)*100  timeperiod=10
-    for i in range(t3_b, t3_e):
+    for i in range(t3_b, t3_e, t3_s):
         df["ROCR100_"+str(i)] = ROCR100(close, timeperiod=i)
 
     #Relative Strength Index timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["RSI_"+str(i)] = RSI(inputs, timeperiod=i)
 
     #Stochastic fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0
@@ -349,15 +355,15 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
             df["STOCHF_FASTD_"+str(fastk_p)+"_"+str(slowk_p)] = fastd
 
     #Stochastic Relative Strength Index timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0
-    for timeperiod in range(t2_b, t2_e):
-        for fastk_p in range(t4_b, t4_e):
+    for timeperiod in range(t2_b, t2_e, t2_s):
+        for fastk_p in range(t4_b, t4_e, t4_s):
             for fastd_p in range(3, 4):
                 fastk, fastd = STOCHRSI(close, timeperiod=timeperiod, fastk_period=fastk_p, fastd_period=fastd_p, fastd_matype=0)
                 df["STOCHRSI_FASTK_"+str(timeperiod)+"_"+str(fastk_p)+"_"+str(fastd_p)] = fastk
                 df["STOCHRSI_FASTD_"+str(timeperiod)+"_"+str(fastk_p)+"_"+str(fastd_p)] = fastd
 
     #1-day Rate-Of-Change (ROC) of a Triple Smooth EMA timeperiod=30
-    for i in range(t1_b, t1_e):
+    for i in range(t1_b, t1_e, t1_s):
         df["TRIX_"+str(i)] = TRIX(close, timeperiod=i)
 
     #Ultimate Oscillator timeperiod1=7, timeperiod2=14, timeperiod3=28
@@ -367,7 +373,7 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
                 df["ULTOSC_"+str(i1)+"_"+str(i2)+"_"+str(i3)] = ULTOSC(inputs, timeperiod1=i1, timeperiod2=i2, timeperiod3=i3)
 
     #Williams' %R timeperiod=14
-    for i in range(t2_b, t2_e):
+    for i in range(t2_b, t2_e, t2_s):
         df["WILLR_"+str(i)] = WILLR(inputs, timeperiod=i)
 
 
@@ -391,7 +397,7 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
 
     #better normalised indicator than non
     ##NATR - Normalized Average True Range
-    for i in range (t2_b, t2_e):
+    for i in range (t2_b, t2_e, t2_s):
         df["NATR_"+str(i)] = NATR(inputs, timeperiod=i)
 
     ##TRANGE - True Range
@@ -399,8 +405,8 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
 
 
     ##PATTERN RECOGNITION
-    for func in talib.get_function_groups()['Pattern Recognition']:
-        df[func] = globals()[func](inputs)
+    #for func in talib.get_function_groups()['Pattern Recognition']:
+    #    df[func] = globals()[func](inputs)
 
     return df
 

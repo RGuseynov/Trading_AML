@@ -36,7 +36,7 @@ data_bitcoin = ws.datasets.get("bitcoin 1H tabular dataset")
 # Create an estimator
 estimator = Estimator(source_directory="trading_src",
               inputs=[data_stocks.as_named_input('stocks'), data_bitcoin.as_named_input('bitcoin')],
-              compute_target = cluster_name, # Use the compute target created previously
+              compute_target = training_cluster, # Use the compute target created previously
               environment_definition = registered_env,
               entry_script='aml_experiments/xgb_BSH_Stocks_v2/xgb_BSH_Stocks_v2_script.py')
 

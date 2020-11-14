@@ -63,20 +63,27 @@ df_stocks.columns = ['Symbol', 'Timestamp', 'Open', 'High', 'Low', 'Close', 'Vol
 print(df_stocks)
 
 #list_of_stocks_df = [s for _, s in df_stocks.groupby(['Symbol'])]
-dict_of_stocks_df = {symbol: group_df for symbol, group_df in df_stocks.groupby(['Symbol'])}
 #list_of_symbols = []
-list_of_stocks_df_with_TA = []
+#list_of_stocks_df_with_TA = []
+
+dict_of_stocks_df = {symbol: group_df for symbol, group_df in df_stocks.groupby(['Symbol'])}
+df_stocks = pd.DataFrame()
 
 for symbol, df_stock in dict_of_stocks_df.items():
     df_stock_with_TA = fe.add_custom_TA(df_stock)
-    #list_of_symbols.append(symbol)
-    list_of_stocks_df_with_TA.append(df_stock_with_TA)
+    df_stock_with_TA.loc[:, df_stock_with_TA.dtypes == 'float64'] = df_stock_with_TA.loc[:, df_stock_with_TA.dtypes == 'float64'].astype('float32')
 
-df_stocks = pd.concat(list_of_stocks_df_with_TA)
+    df_stocks = df_stocks.append(df_stock_with_TA, ignore_index=True)
+
+    print(df_stocks.info(memory_usage="deep", verbose=False))
+    #list_of_symbols.append(symbol)
+    #list_of_stocks_df_with_TA.append(df_stock_with_TA)
+#df_stocks = pd.concat(list_of_stocks_df_with_TA)
 
 print("concated dfs:")
 print(df_stocks)
 print(df_stocks.info(memory_usage="deep", verbose=False))
+ml_experiment["df_memory_usage"] = df_stocks.info(memory_usage="deep", verbose=False)
 
 df_stocks = df_stocks.set_index(df_stocks["Timestamp"])
 df_stocks = df_stocks.drop(["Timestamp"], axis=1)
@@ -143,11 +150,19 @@ ml_experiment["model_metrics"] = {}
 ml_experiment["model_metrics"]["classification_report"] = classification_r
 
 confusion_m = confusion_matrix(y_stocks_test, y_stocks_best_preds) 
+
+print(y_stocks_test)
+print(y_stocks_best_preds)
+print("confusion m:")
+prrint(confusion_m)
+
 cm_aml = {"schema_type": "confusion_matrix",
             "schema_version": "v1",
             "data": {"class_labels": target_names,
                      "matrix": confusion_m.tolist()}}
 run.log_confusion_matrix("confusion matrix", cm_aml)
+
+print(cm_aml)
 
 plot_helper = ph.XGBoostPlotHelper(xg_model)
 run.log_image("features importances", plot=plot_helper.get_features_importances())
@@ -156,6 +171,8 @@ run.log_image("features importances", plot=plot_helper.get_features_importances(
 dict_of_stocks_test = {symbol: group_df for symbol, group_df in X_stocks_test_bk.groupby(['Symbol'])}
 returns_without_fees = {}
 returns_with_fees = {}
+buy_and_hold_returns_without_fees = {}
+buy_and_hold_returns_with_fees = {}
 for symbol, df in dict_of_stocks_test.items():
     result_without_fees = bk.do_back_test(df, bk.B_S_H, ml_experiment["backtest_parameters_1"]["thresold"], 
                                 ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"]).to_dict()
@@ -163,22 +180,35 @@ for symbol, df in dict_of_stocks_test.items():
                                 ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"]).to_dict()
     returns_without_fees[symbol] = result_without_fees["Return [%]"]
     returns_with_fees[symbol] = result_with_fees["Return [%]"]
+    buy_and_hold_returns_without_fees[symbol] = result_without_fees["Buy & Hold Return [%]"]
+    buy_and_hold_returns_with_fees[symbol] = result_without_fees["Buy & Hold Return [%]"]
+
+# log return of SP500 individualy
+#ml_experiment["backtest_return_all_stocks_result_1"] = returns_without_fees
+#ml_experiment["backtest_return_all_stocks_result_2"] = returns_with_fees
+#ml_experiment["buy_and_hold_return_all_stocks_result_1"] = buy_and_hold_returns_without_fees
+#ml_experiment["buy_and_hold_return_all_stocks_result_2"] = buy_and_hold_returns_with_fees
+
+#log mean return
 mean_returns_without_fees = sum(returns_without_fees.values()) / len(returns_without_fees.values())
 mean_returns_with_fees = sum(returns_with_fees.values()) / len(returns_with_fees.values())
+#mean_returns_buy_and_hold_without_fees = sum(buy_and_hold_returns_without_fees.values()) / len(buy_and_hold_returns_without_fees.values())
+mean_returns_buy_and_hold_with_fees = sum(buy_and_hold_returns_with_fees.values()) / len(buy_and_hold_returns_with_fees.values())
 
-ml_experiment["backtest_return_all_stocks_result_1"] = returns_without_fees
-ml_experiment["backtest_return_all_stocks_result_2"] = returns_with_fees
 ml_experiment["backtest_return_stocks_mean_result_1"] = mean_returns_without_fees
 ml_experiment["backtest_return_stocks_mean_result_2"] = mean_returns_with_fees
+#ml_experiment["backtest_mean_returns_buy_and_hold_1"] = mean_returns_buy_and_hold_without_fees
+ml_experiment["backtest_mean_returns_buy_and_hold_2"] = mean_returns_buy_and_hold_with_fees
 
 run.log("mean return stocks no fee", ml_experiment["backtest_return_stocks_mean_result_1"])
 run.log("mean return stocks with fee", ml_experiment["backtest_return_stocks_mean_result_2"])
+run.log("mean return stocks buy and hold with fee", ml_experiment["backtest_mean_returns_buy_and_hold_2"])
 
 # running backtest on bitcoin 2 years
 bk_output_1 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_1"]["thresold"], 
-                                ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "outputs/bk_plot_sans_frais")
+                                ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "outputs/bk_2years_btc_sans_frais")
 bk_output_2 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_2"]["thresold"], 
-                                ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "outputs/bk_plot_avec_frais")
+                                ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "outputs/bk_2years_btc_avec_frais")
 ml_experiment["backtest_bitcoin_results_2years_1"] = bk_output_1.to_dict()
 ml_experiment["backtest_bitcoin_results_2years_2"] = bk_output_2.to_dict()
 run.log("return bitcoin no fee 2 years", ml_experiment["backtest_bitcoin_results_2years_1"]["Return [%]"])
@@ -186,9 +216,9 @@ run.log("return bitcoin with fee 2 years", ml_experiment["backtest_bitcoin_resul
 
 X_bitcoin_test_bk = X_bitcoin_test_bk[(X_bitcoin_test_bk.index.year == 2020) & (X_bitcoin_test_bk.index.month > 6)]
 bk_output_1 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_1"]["thresold"], 
-                                ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "outputs/bk_plot_sans_frais")
+                                ml_experiment["backtest_parameters_1"]["cash"], ml_experiment["backtest_parameters_1"]["commission"], "outputs/bk_3months_btc_bk_sans_frais")
 bk_output_2 = bk.do_back_test(X_bitcoin_test_bk, bk.B_S_H, ml_experiment["backtest_parameters_2"]["thresold"], 
-                                ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "outputs/bk_plot_avec_frais")
+                                ml_experiment["backtest_parameters_2"]["cash"], ml_experiment["backtest_parameters_2"]["commission"], "outputs/bk_3months_btc_avec_frais")
 ml_experiment["backtest_bitcoin_results_3months_1"] = bk_output_1.to_dict()
 ml_experiment["backtest_bitcoin_results_3months_2"] = bk_output_2.to_dict()
 run.log("return bitcoin no fee last 3 months", ml_experiment["backtest_bitcoin_results_3months_1"]["Return [%]"])

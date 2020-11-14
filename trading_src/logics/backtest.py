@@ -62,6 +62,8 @@ def do_back_test(test_data, strategy, thresold=0, cash=10000, commission=0.001, 
     if filename :
         bt.plot(filename=filename, open_browser=False)
     output = output.drop("_strategy")
+    output = output.drop("_equity_curve")
+    output = output.drop("_trades")
     return output
 
 
