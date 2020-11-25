@@ -19,7 +19,7 @@ def process_ta_functions_group (df: pd.DataFrame, inputs: dict, ta_functions: li
     return df
 
 
-def add_TA (df: pd.DataFrame) -> pd.DataFrame:
+def add_TA (df: pd.DataFrame):
     inputs = {
     'open': df["Open"],
     'high': df["High"],
@@ -44,10 +44,8 @@ def add_TA (df: pd.DataFrame) -> pd.DataFrame:
     for func in talib.get_function_groups()['Pattern Recognition']:
         df[func] = globals()[func](inputs)
 
-    return df
 
-
-def add_partial_TA (df: pd.DataFrame) -> pd.DataFrame:
+def add_partial_TA (df: pd.DataFrame) -> None:
     inputs = {
     'open': df["Open"],
     'high': df["High"],
@@ -72,10 +70,9 @@ def add_partial_TA (df: pd.DataFrame) -> pd.DataFrame:
     #for func in talib.get_function_groups()['Pattern Recognition']:
     #    df[func] = globals()[func](inputs)
 
-    return df
 
 
-def add_test_TA (df: pd.DataFrame) -> pd.DataFrame:
+def add_test_TA (df: pd.DataFrame):
     inputs = {
     'open': df["Open"],
     'high': df["High"],
@@ -83,13 +80,14 @@ def add_test_TA (df: pd.DataFrame) -> pd.DataFrame:
     'close': df["Close"],
     'volume': df["Volume"]
     }
+    close = df["Close"]
 
     #df["BBANDS_upper"], df["BBANDS_middle"], df["BBANDS_lower"] = BBANDS(inputs, 20, 2.0, 2.0)
 
-    df["KAMA"] = KAMA(inputs, timeperiod=30)
-    df["MESA"] = MESA(inputs)
+    df["MA"] = SMA(close) 
+    df["normalized_MA"] = SMA(close) / close
+    df["RSI"] =  df["RSI"] = RSI(inputs)
 
-    return df
 
 
 
@@ -126,7 +124,7 @@ def add_BBands_TA (df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
+def add_custom_TA (df: pd.DataFrame) -> None:
     inputs = {
     'open': df["Open"],
     'high': df["High"],
@@ -145,31 +143,31 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
 
     #default 14 
     t2_b = 6
-    t2_e = 43
-    t2_s = 4
+    t2_e = 31
+    t2_s = 2
 
     #default 10 
-    t3_b = 4
+    t3_b = 6
     t3_e = 21
-    t3_s = 2
+    t3_s = 1
 
     #default 5 
     t4_b = 3
-    t4_e = 11
+    t4_e = 13
     t4_s = 1
 
     #defaut 12
-    t_fast_b = 6
+    t_fast_b = 4
     t_fast_e = 21
     t_fast_s = 2
     #default 26
-    t_slow_b = 18
-    t_slow_e = 35
+    t_slow_b = 20
+    t_slow_e = 37
     t_slow_s = 2
 
     # OVERLAP STUDIES
     # Boollinger Bands default period=5
-    for i in range(4, 41, 1):
+    for i in range(3, 52, 2):
         upper_band, medium_band, lower_band = BBANDS(close, timeperiod=i, nbdevup=2.0, nbdevdn=2.0)
         df["BBANDS_WIDTH_"+str(i)] = (upper_band - lower_band) / medium_band  
         df["BBANDS_%B_"+ str(i)] = (df['Close'] - lower_band) / (upper_band - lower_band)
@@ -340,16 +338,16 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
         df["RSI_"+str(i)] = RSI(inputs, timeperiod=i)
 
     #Stochastic fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0
-    for fastk_p in range(5, 6):
-        for slowk_p in range(3, 4):
-            for slowd_p in range(3, 4):
+    for fastk_p in range(4, 7):
+        for slowk_p in range(2, 5):
+            for slowd_p in range(2, 5):
                 lowk, slowd = STOCH(inputs, fastk_period=fastk_p, slowk_period=slowk_p, slowk_matype=0, slowd_period=slowd_p, slowd_matype=0)
                 df["STOCH_LOWK_"+str(fastk_p)+"_"+str(slowk_p)+"_"+str(slowd_p)] = lowk
                 df["STOCH_SLOWD_"+str(fastk_p)+"_"+str(slowk_p)+"_"+str(slowd_p)] = slowd
 
     #Stochastic Fast fastk_period=5, fastd_period=3, fastd_matype=0
-    for fastk_p in range(5, 6):
-        for fastd_p in range(3, 4):
+    for fastk_p in range(4, 8):
+        for fastd_p in range(2, 5):
             fastk, fastd = STOCHF(inputs, fastk_period=fastk_p, fastd_period=fastd_p, fastd_matype=0)
             df["STOCHF_FASTK_"+str(fastk_p)+"_"+str(slowk_p)] = fastk
             df["STOCHF_FASTD_"+str(fastk_p)+"_"+str(slowk_p)] = fastd
@@ -357,7 +355,7 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
     #Stochastic Relative Strength Index timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0
     for timeperiod in range(t2_b, t2_e, t2_s):
         for fastk_p in range(t4_b, t4_e, t4_s):
-            for fastd_p in range(3, 4):
+            for fastd_p in range(2, 5):
                 fastk, fastd = STOCHRSI(close, timeperiod=timeperiod, fastk_period=fastk_p, fastd_period=fastd_p, fastd_matype=0)
                 df["STOCHRSI_FASTK_"+str(timeperiod)+"_"+str(fastk_p)+"_"+str(fastd_p)] = fastk
                 df["STOCHRSI_FASTD_"+str(timeperiod)+"_"+str(fastk_p)+"_"+str(fastd_p)] = fastd
@@ -367,9 +365,9 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
         df["TRIX_"+str(i)] = TRIX(close, timeperiod=i)
 
     #Ultimate Oscillator timeperiod1=7, timeperiod2=14, timeperiod3=28
-    for i1 in range(7, 8):
-        for i2 in range(14, 15):
-            for i3 in range(28, 29):
+    for i1 in range(3, 12, 2):
+        for i2 in range(10, 21, 2):
+            for i3 in range(20, 41, 2):
                 df["ULTOSC_"+str(i1)+"_"+str(i2)+"_"+str(i3)] = ULTOSC(inputs, timeperiod1=i1, timeperiod2=i2, timeperiod3=i3)
 
     #Williams' %R timeperiod=14
@@ -382,8 +380,8 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
     df["AD"] = AD(inputs)
 
     #ADOSC - Chaikin A/D Oscillator fastperiod=3, slowperiod=10
-    for fast in range(3,4):
-        for slow in range(10,11):
+    for fast in range(2,7):
+        for slow in range(6,21):
             df["ADOSC_"+str(fast)+"_"+str(slow)] = ADOSC(inputs, fast, slow)
 
     #OBV - On Balance Volume
@@ -408,5 +406,4 @@ def add_custom_TA (df: pd.DataFrame) -> pd.DataFrame:
     #for func in talib.get_function_groups()['Pattern Recognition']:
     #    df[func] = globals()[func](inputs)
 
-    return df
 

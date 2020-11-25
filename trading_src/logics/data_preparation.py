@@ -3,7 +3,7 @@ import os
 
 
 # traitement inital donnee brut BTC
-def remplissage_nan_initial(df: pd.DataFrame) -> pd.DataFrame:
+def remplissage_nan_initial(df: pd.DataFrame):
     #remplissage des minutes manquantes(sans activites) avec les donnees du dernier prix
     df["Close"].fillna(method="ffill", inplace=True)
     df["Open"].fillna(df["Close"], inplace=True)
@@ -11,14 +11,12 @@ def remplissage_nan_initial(df: pd.DataFrame) -> pd.DataFrame:
     df["Low"].fillna(df["Close"], inplace=True)
     #df.loc[:,["Open", "High", "Low"]].fillna(df["Close"], inplace=True)
     df["Volume_(BTC)"] = df["Volume_(BTC)"].fillna(0)
-    return df
 
 
 # traitement inital donnee brut BTC
 def traitement_initial():
     # Utiliser la date comme index, convertir unix time to datetime, garder que les dates apres 2014, ajouter les minutes manquantes
     file_path = "data/bitcoin-historical-data/bitstampUSD_1-min_data_2012-01-01_to_2020-09-14.csv"
-    print(os.getcwd())
     df = pd.read_csv(file_path, index_col="Timestamp")
     df.index = pd.to_datetime(df.index, unit="s")
     df = df[["Close", "Open", "High", "Low", "Volume_(BTC)"]]

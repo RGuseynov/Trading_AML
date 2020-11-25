@@ -50,7 +50,7 @@ def create_labels_base(df, col_name, window_size=11):
                 max_ = -np.inf
                 max_index = -1
                 for i in range(window_begin, window_end + 1):
-                    price = df.iloc[i][col_name]
+                    price = df.iloc[i][df.columns.get_loc(col_name)]
                     if price < min_:
                         min_ = price
                         min_index = i

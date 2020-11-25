@@ -3,6 +3,7 @@ import os
 import pickle
 import glob
 import json
+import tracemalloc
 
 import pandas as pd
 import numpy as np
@@ -34,8 +35,8 @@ ml_experiment["test_date_info"] = "july, sept and august of 2020"
 
 # model parameters
 ml_experiment["model_hyperparameters"] = {"objective":"multi:softprob", "num_class": 3, 'colsample_bytree': 0.3,
-                                          'learning_rate': 0.1, 'max_depth': 15, 'alpha': 10}
-ml_experiment["Num_boost_round"] = 15
+                                          'learning_rate': 0.1, 'max_depth': 20, 'alpha': 10}
+ml_experiment["Num_boost_round"] = 50
 
 # backtests parameters
 ml_experiment["backtest_parameters_1"] = {"thresold": 0, "cash": 10000, "commission": 0}
@@ -44,6 +45,8 @@ ml_experiment["backtest_parameters_2"] = {"thresold": 0, "cash": 10000, "commiss
 
 # Get the experiment run context
 run = Run.get_context()
+
+tracemalloc.start()
 
 # load the bitcoin data (passed as an input dataset)
 print("Loading Data...")
@@ -56,28 +59,45 @@ df_bitcoin.index = pd.to_datetime(df_bitcoin.index)
 
 df_bitcoin =  df_bitcoin[df_bitcoin.index.year >= 2019]
 df_bitcoin.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
-df_bitcoin = fe.add_custom_TA(df_bitcoin)
+fe.add_custom_TA(df_bitcoin)
 
 print(df_stocks)
 df_stocks.columns = ['Symbol', 'Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume']
 print(df_stocks)
 
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
 #list_of_stocks_df = [s for _, s in df_stocks.groupby(['Symbol'])]
-#list_of_symbols = []
-#list_of_stocks_df_with_TA = []
 
 dict_of_stocks_df = {symbol: group_df for symbol, group_df in df_stocks.groupby(['Symbol'])}
-df_stocks = pd.DataFrame()
+#df_stocks = pd.DataFrame()
+#list_of_stocks_df_with_TA = []
+#i = 0
+
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
 
 for symbol, df_stock in dict_of_stocks_df.items():
-    df_stock_with_TA = fe.add_custom_TA(df_stock)
-    df_stock_with_TA.loc[:, df_stock_with_TA.dtypes == 'float64'] = df_stock_with_TA.loc[:, df_stock_with_TA.dtypes == 'float64'].astype('float32')
+    fe.add_custom_TA(df_stock)
+    dict_of_stocks_df[symbol] = df_stock.astype('float32', errors='ignore')
 
-    df_stocks = df_stocks.append(df_stock_with_TA, ignore_index=True)
+    #df_stock_with_TA = fe.add_custom_TA(df_stock)
+    ##errors ignore keep the orginal dtype if can't convert
+    #df_stock_with_TA = df_stock_with_TA.astype('float32', errors='ignore')
 
-    print(df_stocks.info(memory_usage="deep", verbose=False))
-    #list_of_symbols.append(symbol)
+    #i += 1
+    #print(i, symbol)
+    #current, peak = tracemalloc.get_traced_memory()
+    #print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
+    #df_stocks = df_stocks.append(df_stock_with_TA, ignore_index=True)
     #list_of_stocks_df_with_TA.append(df_stock_with_TA)
+
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
+df_stocks = pd.concat(dict_of_stocks_df.values())
 #df_stocks = pd.concat(list_of_stocks_df_with_TA)
 
 print("concated dfs:")
@@ -85,11 +105,24 @@ print(df_stocks)
 print(df_stocks.info(memory_usage="deep", verbose=False))
 ml_experiment["df_memory_usage"] = df_stocks.info(memory_usage="deep", verbose=False)
 
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+dict_of_stocks_df = None
+current, peak = tracemalloc.get_traced_memory()
+print(f"After None current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
+
 df_stocks = df_stocks.set_index(df_stocks["Timestamp"])
 df_stocks = df_stocks.drop(["Timestamp"], axis=1)
 df_stocks.index = pd.to_datetime(df_stocks.index)
 df_stocks_train = df_stocks[(df_stocks.index.year < 2020) | ((df_stocks.index.year == 2020) & (df_stocks.index.month <= 6))]
 df_stocks_test = df_stocks[(df_stocks.index.year == 2020) & (df_stocks.index.month > 6)]
+
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+df_stocks = None
+current, peak = tracemalloc.get_traced_memory()
+print(f"After None current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
 
 print("stocks train:")
 print(df_stocks_train)
@@ -100,19 +133,28 @@ X_stocks_train = df_stocks_train
 X_stocks_test = df_stocks_test
 X_bitcoin_test = df_bitcoin
 
-window_size = 21
+current, peak = tracemalloc.get_traced_memory()
+print(f"Before labeling current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
+window_size = 17
 y_stocks_train = dl.create_labels(X_stocks_train, window_size)
 y_stocks_test = dl.create_labels(X_stocks_test, window_size)
 y_bitcoin_test = dl.create_labels(X_bitcoin_test, window_size)
 
+current, peak = tracemalloc.get_traced_memory()
+print(f"After labeling current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
 
-X_stocks_train = X_stocks_train.drop(["Symbol", 'Open', 'High', 'Low', 'Close', 'Volume'], axis=1)
+X_stocks_train.drop(["Symbol", 'Open', 'High', 'Low', 'Close', 'Volume'], axis=1, inplace=True)
 
 X_stocks_test_bk = X_stocks_test[['Symbol','Open', 'High', 'Low', 'Close', 'Volume']]
-X_stocks_test = X_stocks_test.drop(['Symbol','Open', 'High', 'Low', 'Close', 'Volume'], axis=1)
+X_stocks_test.drop(['Symbol','Open', 'High', 'Low', 'Close', 'Volume'], axis=1, inplace=True)
+
+print(X_stocks_test_bk)
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
 
 X_bitcoin_test_bk = X_bitcoin_test[['Open', 'High', 'Low', 'Close', 'Volume']]
-X_bitcoin_test = X_bitcoin_test.drop(['Open', 'High', 'Low', 'Close', 'Volume'], axis=1)
+X_bitcoin_test.drop(['Open', 'High', 'Low', 'Close', 'Volume'], axis=1, inplace=True)
 
 #logs
 ml_experiment["features_informations"] = {}
@@ -123,10 +165,25 @@ ml_experiment["features_informations"]["target_window_size"] = window_size
 # handling data inbalance with weighted class
 sample_weights, ml_experiment["class_weights"] = utils.get_sample_weights(y_stocks_train)
 
+current, peak = tracemalloc.get_traced_memory()
+print(f"Before DMatrix current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
 # prepare data for XGBoost training and testing
 dtrain = xgb.DMatrix(X_stocks_train, weight=sample_weights, label=y_stocks_train, feature_names=list(X_stocks_train.columns))
-dtest_stocks = xgb.DMatrix(X_stocks_test, label=y_stocks_test, feature_names=list(X_stocks_train.columns))
-dtest_bitcoin = xgb.DMatrix(X_bitcoin_test, label=y_bitcoin_test, feature_names=list(X_stocks_train.columns))
+#dtrain = xgb.DMatrix(X_stocks_train, label=y_stocks_train, feature_names=list(X_stocks_train.columns))
+current, peak = tracemalloc.get_traced_memory()
+print(f"After 1 st DMatrix current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+X_stocks_train = None
+current, peak = tracemalloc.get_traced_memory()
+print(f"After 1st DMatrix FREE momory current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+dtest_stocks = xgb.DMatrix(X_stocks_test, label=y_stocks_test, feature_names=list(X_stocks_test.columns))
+X_stocks_test = None
+dtest_bitcoin = xgb.DMatrix(X_bitcoin_test, label=y_bitcoin_test, feature_names=list(X_bitcoin_test.columns))
+X_bitcoin_test = None
+
+current, peak = tracemalloc.get_traced_memory()
+print(f"After DMatrix current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
 
 watchlist  = [(dtrain,'train'),(dtest_stocks,'eval')]
 # model training
@@ -154,7 +211,7 @@ confusion_m = confusion_matrix(y_stocks_test, y_stocks_best_preds)
 print(y_stocks_test)
 print(y_stocks_best_preds)
 print("confusion m:")
-prrint(confusion_m)
+print(confusion_m)
 
 cm_aml = {"schema_type": "confusion_matrix",
             "schema_version": "v1",

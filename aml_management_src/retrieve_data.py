@@ -2,8 +2,6 @@ import azureml.core
 from azureml.core import Workspace, Datastore, Dataset
 
 
-import trading_src.logics.features_engineering as fe
-
 # Load the workspace from the saved config file
 ws = Workspace.from_config()
 print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws.name))

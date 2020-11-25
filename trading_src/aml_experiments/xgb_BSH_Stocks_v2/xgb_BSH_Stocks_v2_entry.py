@@ -12,7 +12,7 @@ from azureml.core.compute_target import ComputeTargetException
 ws = Workspace.from_config()
 print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws.name))
 
-cluster_name = "aml-cluster"
+cluster_name = "max-cluster"
 # Verify that cluster exists
 try:
     training_cluster = ComputeTarget(workspace=ws, name=cluster_name)
