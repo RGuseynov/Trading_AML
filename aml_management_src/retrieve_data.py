@@ -8,7 +8,6 @@ print('Ready to use Azure ML {} to work with {}'.format(azureml.core.VERSION, ws
 
 # Get the dataset
 data_stocks = Dataset.get_by_name(ws, name='Stocks_1H')
-
 data_stocks_df = data_stocks.to_pandas_dataframe()
 
 try:

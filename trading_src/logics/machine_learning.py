@@ -12,34 +12,7 @@ from tensorflow.keras import regularizers
 from tensorflow.keras import backend as K
 
 
-# copied
-def f1_metric(y_true, y_pred):
-    """
-    this calculates precision & recall 
-    """
-
-    def recall(y_true, y_pred):
-        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))  # mistake: y_pred of 0.3 is also considered 1
-        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-        recall = true_positives / (possible_positives + K.epsilon())
-        return recall
-
-    def precision(y_true, y_pred):
-        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-        precision = true_positives / (predicted_positives + K.epsilon())
-        return precision
-
-    precision = precision(y_true, y_pred)
-    recall = recall(y_true, y_pred)
-    # y_true_class = tf.math.argmax(y_true, axis=1, output_type=tf.dtypes.int32)
-    # y_pred_class = tf.math.argmax(y_pred, axis=1, output_type=tf.dtypes.int32)
-    # conf_mat = tf.math.confusion_matrix(y_true_class, y_pred_class)
-    # tf.Print(conf_mat, [conf_mat], "confusion_matrix")
-
-    return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
-
-
+# amélioration du code copié
 def create_model_cnn(params):
     print("Training with params {}".format(params))
 
@@ -114,3 +87,31 @@ def create_model_cnn_base(params, input_shape):
     model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=[f1_metric, 'accuracy'])
     
     return model
+
+
+# copié
+def f1_metric(y_true, y_pred):
+    """
+    this calculates precision & recall 
+    """
+
+    def recall(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))  # mistake: y_pred of 0.3 is also considered 1
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+
+    def precision(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+
+    precision = precision(y_true, y_pred)
+    recall = recall(y_true, y_pred)
+    # y_true_class = tf.math.argmax(y_true, axis=1, output_type=tf.dtypes.int32)
+    # y_pred_class = tf.math.argmax(y_pred, axis=1, output_type=tf.dtypes.int32)
+    # conf_mat = tf.math.confusion_matrix(y_true_class, y_pred_class)
+    # tf.Print(conf_mat, [conf_mat], "confusion_matrix")
+
+    return 2 * ((precision * recall) / (precision + recall + K.epsilon()))

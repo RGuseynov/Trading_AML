@@ -85,7 +85,7 @@ if __name__ == "__main__":
     #df.rename(columns={"Volume_(BTC)": "Volume"}, inplace=True) 
     print(df)
 
-    bt = Backtest(df, SimplePredictionFollowing, cash=10000, commission=.000)
+    bt = Backtest(df, BinaryPrediction, cash=10000, commission=.000)
 
     output = bt.run(prediction=df["Prediction"], thresold=0.1)
     print(output)

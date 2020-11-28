@@ -4,6 +4,7 @@ import talib
 from talib.abstract import *
 
 
+# fonction pour gérer les TA avec plusieurs outputs
 def process_ta_functions_group (df: pd.DataFrame, inputs: dict, ta_functions: list) -> pd.DataFrame:
     for func in ta_functions:
         output = globals()[func](inputs)
@@ -19,6 +20,7 @@ def process_ta_functions_group (df: pd.DataFrame, inputs: dict, ta_functions: li
     return df
 
 
+# fonction qui applique toutes les fonction TA de la librairie TA-lib
 def add_TA (df: pd.DataFrame):
     inputs = {
     'open': df["Open"],
@@ -45,6 +47,7 @@ def add_TA (df: pd.DataFrame):
         df[func] = globals()[func](inputs)
 
 
+# same as add_TA function but with some TA cutted
 def add_partial_TA (df: pd.DataFrame) -> None:
     inputs = {
     'open': df["Open"],
@@ -71,7 +74,7 @@ def add_partial_TA (df: pd.DataFrame) -> None:
     #    df[func] = globals()[func](inputs)
 
 
-
+# fonction for testing some TA
 def add_test_TA (df: pd.DataFrame):
     inputs = {
     'open': df["Open"],
@@ -89,8 +92,7 @@ def add_test_TA (df: pd.DataFrame):
     df["RSI"] =  df["RSI"] = RSI(inputs)
 
 
-
-
+# customisation of BBands TA
 def add_BBands_TA (df: pd.DataFrame) -> pd.DataFrame:
     inputs = {
     'open': df["Open"],
@@ -124,6 +126,7 @@ def add_BBands_TA (df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+# customisation of all TA
 def add_custom_TA (df: pd.DataFrame) -> None:
     inputs = {
     'open': df["Open"],

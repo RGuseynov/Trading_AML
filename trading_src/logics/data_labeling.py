@@ -10,7 +10,7 @@ def add_B_S_H(row):
     else:
         return 2
 
-
+# optimisé
 def create_labels(df, window_size=11):
     df["temp_max"] = df["Close"].rolling(window_size, center=True).max()
     df["temp_min"] = df["Close"].rolling(window_size, center=True).min()
@@ -20,7 +20,7 @@ def create_labels(df, window_size=11):
     return y
 
 
-# copied
+# copié et non optimisé
 def create_labels_base(df, col_name, window_size=11):
         """
         Data is labeled as per the logic in research paper

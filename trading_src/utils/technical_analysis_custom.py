@@ -19,8 +19,6 @@ def BBANDS(df, w=20, n_deviation=2, all=False) -> pd.DataFrame:
     return df
 
 
-
-
 #Moving Average  
 def MA(df, w=30, column="Close") -> pd.Series:  
     return df[column].rolling(window=w).mean()

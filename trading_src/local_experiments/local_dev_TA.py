@@ -45,7 +45,6 @@ df.loc[df["Low"] <= 300, "Low"] = df.loc[df["Low"] <= 300, ["Open", "Close"]].mi
 #print(df.tail(20))
 
 
-
 #df_TA_custom["HT_up"] = np.abs(df_TA_custom["HT"])
 #df_TA_custom["HT_dawn"] = df["Close"] - (df_TA_custom["HT_up"] - df["Close"])
 #df_TA_custom[["HT_up", "HT_dawn", "Close"]].plot(kind="line")
