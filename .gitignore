@@ -141,4 +141,4 @@ dmypy.json
 /.vscode
 /trading_src/ta-lib-0.4.0-src.tar.gz
 
-.vs/
+/.vs/
